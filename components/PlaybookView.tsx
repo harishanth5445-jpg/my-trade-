@@ -17,35 +17,24 @@ interface Playbook {
 const MOCK_PLAYBOOKS: Playbook[] = [
   {
     id: '1',
-    name: 'Morning Top Reversal',
-    winRate: '68%',
-    count: 24,
+    name: 'News Trade',
+    winRate: '62%',
+    count: 18,
     rules: {
-      context: ['Price extended from 20EMA', 'Near key psychological level', 'RSI overbought (>70)'],
-      entry: ['Bearish engulfing candle', 'Volume spike on rejection', 'Break of previous 1m low'],
-      exit: ['Tap of VWAP', 'Tap of 20EMA', 'Profit target 2R reached']
+      context: ['High-impact economic release (CPI/NFP)', 'Significant deviation from consensus', 'Volatile pre-market range'],
+      entry: ['Momentum break of first 1m candle', 'VWAP reclaim after initial spike', 'Delta surge in direction of news'],
+      exit: ['Tap of next major psychological level', '1:2 Risk/Reward ratio reached', 'Time-based exit after 15 mins']
     }
   },
   {
     id: '2',
-    name: 'Buy At New Low of Day',
-    winRate: '42%',
-    count: 15,
+    name: 'ORB Strategy',
+    winRate: '58%',
+    count: 32,
     rules: {
-      context: ['Aggressive sell-off into demand', 'Relative volume high'],
-      entry: ['Absorption at lows', 'Structure break on 1m'],
-      exit: ['Mid-range target', 'New HOD']
-    }
-  },
-  {
-    id: '3',
-    name: 'Absorption Reversal',
-    winRate: '55%',
-    count: 42,
-    rules: {
-      context: ['Sellers exhausted at level', 'Delta turning positive'],
-      entry: ['Big lot buy orders hitting', 'Price holds level despite selling'],
-      exit: ['Supply zone reached', 'Trailing stop 1 ATR']
+      context: ['Opening Range (5m or 15m)', 'Volume > 1.5x average on open', 'Clear gap up/down from previous close'],
+      entry: ['Breakout of High/Low of Opening Range', 'Retest of the range boundary', 'Bullish/Bearish engulfing on 1m'],
+      exit: ['Opposite side of Opening Range', 'Targeting 2x range size', 'Stop moved to BE after 1R']
     }
   }
 ];

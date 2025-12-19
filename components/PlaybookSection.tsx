@@ -3,15 +3,15 @@ import React, { useState } from 'react';
 import { Check, ChevronDown, Info } from 'lucide-react';
 
 const PlaybookSection: React.FC = () => {
-  const [activePlaybook, setActivePlaybook] = useState('Morning Top Reversal');
+  const [activePlaybook, setActivePlaybook] = useState('ORB Strategy');
   const [checkedRules, setCheckedRules] = useState<Record<string, boolean>>({
     'Rule-0-0': true,
     'Rule-1-0': true
   });
 
   const sections = [
-    { title: 'Context', items: ['Extended from 20EMA', 'Key Psych Level', 'RSI Overbought'] },
-    { title: 'Entry', items: ['Engulfing Candle', 'Volume Spike'] },
+    { title: 'Context', items: ['Opening Range (5m or 15m)', 'Volume > 1.5x average on open', 'Clear gap up/down'] },
+    { title: 'Entry', items: ['Breakout of High/Low', 'Retest of boundary'] },
   ];
 
   const totalRules = sections.reduce((acc, sec) => acc + sec.items.length, 0);

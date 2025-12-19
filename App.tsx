@@ -25,13 +25,43 @@ const INITIAL_ACCOUNTS: Account[] = [
 ];
 
 const App: React.FC = () => {
-  const [trades, setTrades] = useState<Trade[]>(MOCK_TRADES);
-  const [accounts, setAccounts] = useState<Account[]>(INITIAL_ACCOUNTS);
+  // Initialize state from LocalStorage if available, otherwise use defaults
+  const [trades, setTrades] = useState<Trade[]>(() => {
+    const saved = localStorage.getItem('tradenexus_trades');
+    return saved ? JSON.parse(saved) : MOCK_TRADES;
+  });
+
+  const [accounts, setAccounts] = useState<Account[]>(() => {
+    const saved = localStorage.getItem('tradenexus_accounts');
+    return saved ? JSON.parse(saved) : INITIAL_ACCOUNTS;
+  });
+
+  const [selectedAccount, setSelectedAccount] = useState<Account>(() => {
+    const savedId = localStorage.getItem('tradenexus_selected_account_id');
+    const savedAccounts = localStorage.getItem('tradenexus_accounts');
+    const currentAccounts = savedAccounts ? JSON.parse(savedAccounts) : INITIAL_ACCOUNTS;
+    return currentAccounts.find((a: Account) => a.id === savedId) || currentAccounts[0];
+  });
+
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [currentView, setCurrentView] = useState<'log' | 'reports' | 'calendar' | 'playbook'>('log');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [selectedAccount, setSelectedAccount] = useState<Account>(INITIAL_ACCOUNTS[0]);
   
+  // Persist Trades
+  useEffect(() => {
+    localStorage.setItem('tradenexus_trades', JSON.stringify(trades));
+  }, [trades]);
+
+  // Persist Accounts
+  useEffect(() => {
+    localStorage.setItem('tradenexus_accounts', JSON.stringify(accounts));
+  }, [accounts]);
+
+  // Persist Selected Account ID
+  useEffect(() => {
+    localStorage.setItem('tradenexus_selected_account_id', selectedAccount.id);
+  }, [selectedAccount]);
+
   // Isolated trades for the current account
   const accountTrades = useMemo(() => {
     return trades.filter(t => t.accountId === selectedAccount.id);
@@ -114,12 +144,11 @@ const App: React.FC = () => {
 
   const handleDeleteAccountConfirm = () => {
     if (!accountToDeleteId) return;
-    // Remove the account
     const filteredAccounts = accounts.filter(a => a.id !== accountToDeleteId);
     setAccounts(filteredAccounts);
     
-    // Optional: Clean up trades associated with this account
-    // setTrades(prev => prev.filter(t => t.accountId !== accountToDeleteId));
+    // Also remove trades associated with this account for clean persistence
+    setTrades(prev => prev.filter(t => t.accountId !== accountToDeleteId));
 
     if (selectedAccount.id === accountToDeleteId && filteredAccounts.length > 0) {
       setSelectedAccount(filteredAccounts[0]);
@@ -152,7 +181,7 @@ const App: React.FC = () => {
 
     const newTrade: Trade = {
       id: Math.random().toString(36).substr(2, 9),
-      accountId: selectedAccount.id, // Link to the active account
+      accountId: selectedAccount.id,
       date: formattedDate,
       symbol: (formData.get('symbol') as string).toUpperCase(),
       side: formData.get('side') as Side,
@@ -201,7 +230,7 @@ const App: React.FC = () => {
       default:
         return (
           <TradeLog 
-            trades={accountTrades} // Only show trades for active account
+            trades={accountTrades}
             onTradeClick={handleTradeClick} 
             onDelete={confirmDelete} 
             onNewTrade={() => setIsNewTradeOpen(true)}
