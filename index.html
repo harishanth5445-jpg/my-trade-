@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeNexus Glass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000;
+            --text-main: #fff;
+            --text-sub: #64748b;
+            --panel-bg: rgba(18, 18, 24, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --mesh-opacity: 0.15;
+            --chart-bg: #08080c;
+            --chart-grid: rgba(255, 255, 255, 0.02);
+            --chart-text: #475569;
+            --tooltip-bg: #000;
+            --tooltip-text: #fff;
+            --border-subtle: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --text-main: #0f172a;
+            --text-sub: #334155;
+            --panel-bg: rgba(255, 255, 255, 0.4);
+            --panel-border: rgba(15, 23, 42, 0.08);
+            --mesh-opacity: 0.25;
+            --chart-bg: #e2e8f0;
+            --chart-grid: rgba(15, 23, 42, 0.08);
+            --chart-text: #64748b;
+            --tooltip-bg: #ffffff;
+            --tooltip-text: #0f172a;
+            --border-subtle: rgba(15, 23, 42, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            overflow: hidden;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+            transition: background 0.4s ease, border 0.4s ease;
+        }
+
+        [data-theme="light"] .text-white { color: #0f172a !important; }
+        [data-theme="light"] .text-slate-300 { color: #475569 !important; }
+        [data-theme="light"] .text-slate-400 { color: #334155 !important; }
+        [data-theme="light"] .text-slate-500 { color: #1e293b !important; }
+        [data-theme="light"] .text-slate-600 { color: #0f172a !important; }
+        
+        [data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
+        [data-theme="light"] .text-emerald-400 { color: #059669 !important; }
+        [data-theme="light"] .text-indigo-300 { color: #4f46e5 !important; }
+        [data-theme="light"] .text-indigo-400 { color: #4338ca !important; }
+        
+        .sidebar-tooltip {
+            background-color: var(--tooltip-bg) !important;
+            color: var(--tooltip-text) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 1px solid var(--panel-border);
+        }
+
+        [data-theme="light"] .border-white\/5 { border-color: var(--border-subtle) !important; }
+        [data-theme="light"] .border-white\/10 { border-color: rgba(15, 23, 42, 0.15) !important; }
+        
+        [data-theme="light"] .nav-item-active {
+            background-color: rgba(8, 145, 178, 0.1) !important;
+            border: 1px solid rgba(8, 145, 178, 0.2) !important;
+        }
+        
+        [data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgba(15, 23, 42, 0.08) !important; }
+        [data-theme="light"] .group:hover .text-slate-500 { color: #0f172a !important; }
+
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(45, 212, 191, 0.3);
+        }
+        
+        [data-theme="light"] .glow-cyan {
+            box-shadow: 0 0 15px rgba(8, 145, 178, 0.15);
+        }
+        
+        .mesh-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 10% 10%, rgba(45, 212, 191, var(--mesh-opacity)) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, var(--mesh-opacity)) 0%, transparent 40%);
+            transition: background 0.5s ease;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        .theme-transition * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div class="mesh-gradient"></div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
