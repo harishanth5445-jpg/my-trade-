@@ -14,24 +14,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Backdrop with sophisticated blur */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+        className="absolute inset-0 bg-black/70 backdrop-blur-[8px] transition-opacity animate-in fade-in duration-300" 
         onClick={onClose}
       />
       
-      {/* Modal Content */}
-      <div className="relative glass-panel w-full max-w-lg rounded-[32px] overflow-hidden animate-in fade-in zoom-in duration-300">
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-          <h2 className="text-xl font-black text-white tracking-tight">{title}</h2>
+      {/* Modal Content - Perfectly Centered */}
+      <div className="relative glass-panel w-full max-w-lg rounded-[40px] overflow-hidden animate-in fade-in zoom-in slide-in-from-bottom-4 duration-500 border-white/10 shadow-[0_32px_128px_-32px_rgba(0,0,0,1)]">
+        <div className="px-10 py-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <h2 className="text-2xl font-black text-white tracking-tight">{title}</h2>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-full text-slate-500 hover:text-white transition-all"
+            className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full text-slate-500 hover:text-white transition-all active:scale-90"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
-        <div className="p-8">
+        <div className="p-10">
           {children}
         </div>
       </div>

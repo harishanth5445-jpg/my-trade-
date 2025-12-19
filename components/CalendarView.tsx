@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Info, Download, TrendingUp, TrendingDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Download, TrendingUp, TrendingDown, Calendar as CalendarIcon } from 'lucide-react';
 import { Trade } from '../types';
 import { exportTradesToCSV } from '../exportUtils';
 
@@ -115,7 +115,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => 
           {stats && (
             <div className="mt-auto pt-2 border-t border-white/5 bg-white/[0.02] -mx-3 -mb-3 px-3 pb-2 rounded-b-[32px]">
               <div className="flex justify-between items-center">
-                <div className={`text-[11px] font-black ${stats.pl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <div className={`text-sm font-black ${stats.pl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {stats.pl >= 0 ? '+' : '-'}${Math.abs(stats.pl).toLocaleString(undefined, { minimumFractionDigits: 0 })}
                 </div>
                 <div className="flex items-center gap-1">
@@ -138,16 +138,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => 
 
   return (
     <div className="flex flex-col h-full p-4 pl-0 gap-4">
-      <header className="px-8 py-6 glass-panel rounded-[32px] flex items-center justify-between">
-        <div className="flex items-center gap-8">
+      <header className="px-10 py-6 glass-panel rounded-[32px] flex items-center justify-between animate-fade-in-up">
+        <div className="flex items-center gap-6">
+          <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.15)] group transition-all">
+            <CalendarIcon size={24} className="group-hover:scale-110 transition-transform" />
+          </div>
           <div className="flex flex-col">
-            <h1 className="text-2xl font-black text-white tracking-tight leading-none">{monthName}</h1>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">{year} Performance</span>
+            <h1 className="text-2xl font-black text-white tracking-tight leading-none uppercase">{monthName}</h1>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1.5">{year} Performance Ledger</span>
           </div>
           
-          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10">
+          <div className="flex items-center gap-1 bg-white/5 p-1.5 rounded-2xl border border-white/10 ml-4">
             <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-400 hover:text-white"><ChevronLeft size={18}/></button>
-            <button onClick={goToToday} className="px-5 py-2 text-xs font-black text-slate-300 hover:bg-white/10 rounded-xl transition-all uppercase tracking-widest">Today</button>
+            <button onClick={goToToday} className="px-5 py-2 text-[10px] font-black text-slate-300 hover:bg-white/10 rounded-xl transition-all uppercase tracking-widest">Today</button>
             <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-400 hover:text-white"><ChevronRight size={18}/></button>
           </div>
         </div>
@@ -155,39 +158,39 @@ const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => 
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)] animate-pulse"></div>
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Profitable</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]"></div>
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Losing</span>
             </div>
           </div>
           <button 
             onClick={handleExport}
-            className="bg-gradient-to-r from-cyan-400 to-emerald-400 text-black px-6 py-2.5 rounded-xl font-black text-sm hover:opacity-90 transition-all glow-cyan flex items-center gap-2"
+            className="bg-gradient-to-r from-emerald-400 to-cyan-400 text-black px-8 py-3 rounded-2xl font-black text-sm hover:opacity-90 transition-all glow-cyan flex items-center gap-2 active:scale-95"
           >
-             <Download size={18} /> Performance Export
+             <Download size={18} /> Export Data
           </button>
         </div>
       </header>
 
-      <div className="flex-1 glass-panel rounded-[32px] overflow-hidden flex flex-col">
+      <div className="flex-1 glass-panel rounded-[32px] overflow-hidden flex flex-col animate-fade-in-up border-white/10">
         <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.02]">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="py-4 text-center border-r border-white/5 last:border-r-0">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{day}</span>
+            <div key={day} className="py-5 text-center border-r border-white/5 last:border-r-0">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{day}</span>
             </div>
           ))}
         </div>
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto no-scrollbar">
           <div className="grid grid-cols-7 min-h-full">
             {renderCells()}
           </div>
         </div>
       </div>
 
-      <footer className="px-10 py-5 glass-panel rounded-[32px] flex justify-between items-center">
+      <footer className="px-10 py-5 glass-panel rounded-[32px] flex justify-between items-center border-white/10">
         <div className="flex gap-12">
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Gross P&L</span>
@@ -203,14 +206,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Net Flow</span>
-            <span className={`text-xl font-black ${footerStats.netFlow >= 0 ? 'text-cyan-400' : 'text-rose-400'}`}>
+            <span className={`text-xl font-black ${footerStats.netFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {footerStats.netFlow >= 0 ? '+' : '-'}${Math.abs(footerStats.netFlow).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-3 text-[10px] font-black text-slate-500 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5 uppercase tracking-tighter">
+        <div className="flex items-center gap-3 text-[10px] font-black text-slate-500 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5 uppercase tracking-widest">
           <Info size={14} className="text-cyan-400"/>
-          Account-scoped execution data
+          Account Telemetry Active
         </div>
       </footer>
     </div>
