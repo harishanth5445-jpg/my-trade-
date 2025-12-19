@@ -24,8 +24,36 @@ const INITIAL_ACCOUNTS: Account[] = [
   { id: 'acc_3', name: 'Personal Futures', type: 'Private Capital', provider: 'Tradovate' },
 ];
 
+const BackgroundCandles: React.FC = () => {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-30 select-none">
+      {[1, 2, 3, 4].map((lane) => (
+        <div 
+          key={lane}
+          className={`absolute h-full flex flex-col gap-8 animate-candle-drift-${(lane % 3) + 1}`}
+          style={{ left: `${(lane - 1) * 25}%`, opacity: 0.03 + lane * 0.02 }}
+        >
+          {Array.from({ length: 30 }).map((_, i) => {
+            const isBull = Math.random() > 0.45;
+            const height = 15 + Math.random() * 80;
+            const wickHeight = height + 10 + Math.random() * 40;
+            return (
+              <div key={i} className="flex flex-col items-center">
+                <div className={`w-[1px] bg-white/10`} style={{ height: `${wickHeight}px` }} />
+                <div 
+                  className={`w-2 rounded-sm ${isBull ? 'bg-emerald-500/30' : 'bg-rose-500/30'} border border-white/5 shadow-sm`}
+                  style={{ height: `${height}px`, marginTop: `-${wickHeight / 2 + height / 2}px` }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const App: React.FC = () => {
-  // Initialize state from LocalStorage if available, otherwise use defaults
   const [trades, setTrades] = useState<Trade[]>(() => {
     const saved = localStorage.getItem('tradenexus_trades');
     return saved ? JSON.parse(saved) : MOCK_TRADES;
@@ -47,27 +75,22 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'log' | 'reports' | 'calendar' | 'playbook'>('log');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   
-  // Persist Trades
   useEffect(() => {
     localStorage.setItem('tradenexus_trades', JSON.stringify(trades));
   }, [trades]);
 
-  // Persist Accounts
   useEffect(() => {
     localStorage.setItem('tradenexus_accounts', JSON.stringify(accounts));
   }, [accounts]);
 
-  // Persist Selected Account ID
   useEffect(() => {
     localStorage.setItem('tradenexus_selected_account_id', selectedAccount.id);
   }, [selectedAccount]);
 
-  // Isolated trades for the current account
   const accountTrades = useMemo(() => {
     return trades.filter(t => t.accountId === selectedAccount.id);
   }, [trades, selectedAccount.id]);
 
-  // Modal States
   const [isNewTradeOpen, setIsNewTradeOpen] = useState(false);
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const [isEditAccountOpen, setIsEditAccountOpen] = useState(false);
@@ -77,7 +100,6 @@ const App: React.FC = () => {
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync theme with DOM
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.body.classList.add('theme-transition');
@@ -130,14 +152,9 @@ const App: React.FC = () => {
     e.preventDefault();
     if (!accountToEdit) return;
     const formData = new FormData(e.currentTarget);
-    const updatedName = formData.get('name') as string;
-    const updatedType = formData.get('type') as string;
-    
-    const updatedAccount = { ...accountToEdit, name: updatedName, type: updatedType };
+    const updatedAccount = { ...accountToEdit, name: formData.get('name') as string, type: formData.get('type') as string };
     setAccounts(prev => prev.map(a => a.id === accountToEdit.id ? updatedAccount : a));
-    if (selectedAccount.id === accountToEdit.id) {
-      setSelectedAccount(updatedAccount);
-    }
+    if (selectedAccount.id === accountToEdit.id) setSelectedAccount(updatedAccount);
     setIsEditAccountOpen(false);
     setAccountToEdit(null);
   };
@@ -146,10 +163,7 @@ const App: React.FC = () => {
     if (!accountToDeleteId) return;
     const filteredAccounts = accounts.filter(a => a.id !== accountToDeleteId);
     setAccounts(filteredAccounts);
-    
-    // Also remove trades associated with this account for clean persistence
     setTrades(prev => prev.filter(t => t.accountId !== accountToDeleteId));
-
     if (selectedAccount.id === accountToDeleteId && filteredAccounts.length > 0) {
       setSelectedAccount(filteredAccounts[0]);
     }
@@ -160,9 +174,7 @@ const App: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setScreenshotPreview(reader.result as string);
-      };
+      reader.onloadend = () => setScreenshotPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -170,14 +182,9 @@ const App: React.FC = () => {
   const handleAddTrade = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
     const rawDate = formData.get('date') as string;
     const dateObj = new Date(rawDate);
-    const formattedDate = dateObj.toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric'
-    });
+    const formattedDate = dateObj.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
 
     const newTrade: Trade = {
       id: Math.random().toString(36).substr(2, 9),
@@ -220,12 +227,9 @@ const App: React.FC = () => {
     }
 
     switch (currentView) {
-      case 'calendar':
-        return <CalendarView trades={accountTrades} onTradeClick={handleTradeClick} />;
-      case 'playbook':
-        return <PlaybookView />;
-      case 'reports':
-        return <ReportsView trades={accountTrades} />;
+      case 'calendar': return <CalendarView trades={accountTrades} onTradeClick={handleTradeClick} />;
+      case 'playbook': return <PlaybookView />;
+      case 'reports': return <ReportsView trades={accountTrades} />;
       case 'log':
       default:
         return (
@@ -247,15 +251,22 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full bg-transparent text-white overflow-hidden selection:bg-cyan-500/30">
-      <Sidebar 
-        currentView={currentView} 
-        onNavigate={setCurrentView} 
-        theme={theme} 
-        onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} 
-        selectedAccount={selectedAccount}
-      />
+      <BackgroundCandles />
+      
+      <div className="animate-fade-in-up">
+        <Sidebar 
+          currentView={currentView} 
+          onNavigate={setCurrentView} 
+          theme={theme} 
+          onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} 
+          selectedAccount={selectedAccount}
+        />
+      </div>
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main 
+        key={selectedTrade ? `detail-${selectedTrade.id}` : currentView} 
+        className="flex-1 flex flex-col min-w-0 overflow-hidden z-10 view-transition-enter"
+      >
         {renderContent()}
       </main>
 
@@ -268,28 +279,14 @@ const App: React.FC = () => {
             </div>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Setup New Environment</p>
           </div>
-
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <Building2 size={12} /> Account Nickname
-            </label>
-            <input 
-              name="name" 
-              required 
-              placeholder="e.g. Apex Master #1" 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-600" 
-            />
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><Building2 size={12} /> Account Nickname</label>
+            <input name="name" required placeholder="e.g. Apex Master #1" className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-600" />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                <Globe size={12} /> Provider
-              </label>
-              <select 
-                name="provider" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer"
-              >
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><Globe size={12} /> Provider</label>
+              <select name="provider" className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer">
                 <option value="Apex Trader Funding" className="bg-slate-900">Apex Funding</option>
                 <option value="Topstep" className="bg-slate-900">Topstep</option>
                 <option value="MyFundedFutures" className="bg-slate-900">MFF</option>
@@ -298,18 +295,10 @@ const App: React.FC = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                <Layers size={12} /> Account Size
-              </label>
-              <input 
-                name="type" 
-                required 
-                placeholder="e.g. 150K XFA" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-600" 
-              />
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><Layers size={12} /> Account Size</label>
+              <input name="type" required placeholder="e.g. 150K XFA" className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-600" />
             </div>
           </div>
-
           <button type="submit" className="w-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-black py-4 rounded-2xl font-black text-sm hover:opacity-90 transition-all glow-cyan mt-4 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
             Create Profile
           </button>
@@ -325,31 +314,14 @@ const App: React.FC = () => {
             </div>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Modify Active Environment</p>
           </div>
-
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <Building2 size={12} /> Account Nickname
-            </label>
-            <input 
-              name="name" 
-              required 
-              defaultValue={accountToEdit?.name}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
-            />
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><Building2 size={12} /> Account Nickname</label>
+            <input name="name" required defaultValue={accountToEdit?.name} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" />
           </div>
-
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <Layers size={12} /> Account Type / Size
-            </label>
-            <input 
-              name="type" 
-              required 
-              defaultValue={accountToEdit?.type}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
-            />
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><Layers size={12} /> Account Type / Size</label>
+            <input name="type" required defaultValue={accountToEdit?.type} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" />
           </div>
-
           <button type="submit" className="w-full bg-gradient-to-r from-indigo-400 to-cyan-400 text-black py-4 rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)]">
             Save Changes
           </button>
@@ -386,7 +358,6 @@ const App: React.FC = () => {
               <input name="date" type="datetime-local" defaultValue={getCurrentDateTime()} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all [color-scheme:dark]" />
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Direction</label>
@@ -410,7 +381,6 @@ const App: React.FC = () => {
               </select>
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Net P&L ($)</label>
@@ -421,21 +391,17 @@ const App: React.FC = () => {
               <input name="contracts" type="number" required placeholder="1" className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all" />
             </div>
           </div>
-
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Strategy Setup</label>
             <select name="setup" className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer">
               {SETUPS.map(s => <option key={s} value={s} className="bg-slate-900">{s}</option>)}
             </select>
           </div>
-
-          {/* Screenshot Upload Widget */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Attach Screenshot</label>
             {!screenshotPreview ? (
               <button 
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
+                type="button" onClick={() => fileInputRef.current?.click()}
                 className="w-full border-2 border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 text-slate-500 hover:border-cyan-500/30 hover:text-cyan-400 hover:bg-white/5 transition-all group"
               >
                 <ImageIcon size={24} className="group-hover:scale-110 transition-transform" />
@@ -445,17 +411,10 @@ const App: React.FC = () => {
             ) : (
               <div className="relative group">
                 <img src={screenshotPreview} alt="Preview" className="w-full h-32 object-cover rounded-2xl border border-white/10" />
-                <button 
-                  type="button"
-                  onClick={() => setScreenshotPreview(null)}
-                  className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-rose-500 transition-colors"
-                >
-                  <X size={14} />
-                </button>
+                <button type="button" onClick={() => setScreenshotPreview(null)} className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-rose-500 transition-colors"><X size={14} /></button>
               </div>
             )}
           </div>
-
           <button type="submit" className="w-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-black py-4 rounded-2xl font-black text-sm hover:opacity-90 transition-all glow-cyan mt-4 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
             Finalize Entry
           </button>
