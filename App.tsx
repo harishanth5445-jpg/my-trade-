@@ -138,7 +138,12 @@ const App: React.FC = () => {
     e.preventDefault();
     if (!accountToEdit) return;
     const formData = new FormData(e.currentTarget);
-    const updatedAccount = { ...accountToEdit, name: formData.get('name') as string, type: formData.get('type') as string };
+    const updatedAccount = { 
+      ...accountToEdit, 
+      name: formData.get('name') as string, 
+      type: formData.get('type') as string,
+      provider: formData.get('provider') as string
+    };
     setAccounts(prev => prev.map(a => a.id === accountToEdit.id ? updatedAccount : a));
     if (selectedAccount.id === accountToEdit.id) setSelectedAccount(updatedAccount);
     setIsEditAccountOpen(false);
@@ -259,6 +264,7 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
+      {/* Register Account Modal */}
       <Modal isOpen={isAddAccountOpen} onClose={() => setIsAddAccountOpen(false)} title="Register Environment">
         <form onSubmit={handleAddAccount} className="space-y-6">
           <div className="flex flex-col items-center gap-2 mb-6">
@@ -299,6 +305,65 @@ const App: React.FC = () => {
         </form>
       </Modal>
 
+      {/* Edit Account Modal */}
+      <Modal isOpen={isEditAccountOpen} onClose={() => { setIsEditAccountOpen(false); setAccountToEdit(null); }} title="Modify Environment">
+        <form onSubmit={handleRenameAccount} className="space-y-6">
+          <div className="flex flex-col items-center gap-2 mb-6">
+            <div className="w-16 h-16 bg-cyan-500/10 rounded-3xl flex items-center justify-center text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+              <Pencil size={32} />
+            </div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mt-2">Adjust Profile Specs</p>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+              <Building2 size={12} /> Account Nickname
+            </label>
+            <input name="name" required defaultValue={accountToEdit?.name} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all shadow-inner" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                <Globe size={12} /> Platform
+              </label>
+              <select name="provider" defaultValue={accountToEdit?.provider} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer">
+                <option value="Apex Trader Funding" className="bg-slate-900">Apex Funding</option>
+                <option value="Topstep" className="bg-slate-900">Topstep</option>
+                <option value="MyFundedFutures" className="bg-slate-900">MFF</option>
+                <option value="Tradovate" className="bg-slate-900">Tradovate</option>
+                <option value="Other" className="bg-slate-900">Other</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                <Layers size={12} /> Size / Type
+              </label>
+              <input name="type" required defaultValue={accountToEdit?.type} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all shadow-inner" />
+            </div>
+          </div>
+          <button type="submit" className="w-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-black py-5 rounded-2xl font-black text-sm hover:opacity-90 transition-all glow-cyan mt-6 active:scale-95 shadow-xl">
+            Update Environment
+          </button>
+        </form>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal isOpen={!!accountToDeleteId} onClose={() => setAccountToDeleteId(null)} title="Destroy Environment">
+        <div className="flex flex-col items-center text-center gap-8">
+          <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+            <AlertTriangle size={48} />
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-2xl font-black text-white tracking-tight">Purge Account?</h3>
+            <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-[320px]">This will permanently delete the environment and ALL associated trade data. This process is irreversible.</p>
+          </div>
+          <div className="flex w-full gap-4 pt-4">
+            <button onClick={() => setAccountToDeleteId(null)} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">Abort</button>
+            <button onClick={handleDeleteAccountConfirm} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-white bg-gradient-to-br from-rose-500 to-rose-700 hover:opacity-90 transition-all uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-xl"><Trash2 size={16} /> Destroy</button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* New Trade Modal */}
       <Modal isOpen={isNewTradeOpen} onClose={() => { setIsNewTradeOpen(false); setScreenshotPreview(null); }} title="Log Execution">
         <form onSubmit={handleAddTrade} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -401,6 +466,7 @@ const App: React.FC = () => {
         </form>
       </Modal>
 
+      {/* Trade Deletion Modal */}
       <Modal isOpen={!!deleteConfirmId} onClose={() => setDeleteConfirmId(null)} title="Destructive Action">
         <div className="flex flex-col items-center text-center gap-8">
           <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">

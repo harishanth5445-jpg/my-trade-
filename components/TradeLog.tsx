@@ -129,6 +129,9 @@ const TradeLog: React.FC<TradeLogProps> = ({
   currentAccount, 
   accounts, 
   onAccountChange,
+  onAddAccount,
+  onEditAccount,
+  onDeleteAccount
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | 'ALL'>('ALL');
@@ -225,17 +228,44 @@ const TradeLog: React.FC<TradeLogProps> = ({
               </div>
             </button>
             {isAccountMenuOpen && (
-              <div className="absolute top-full left-0 mt-3 w-64 glass-panel rounded-[24px] p-2 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-3xl z-50">
-                <div className="max-h-56 overflow-y-auto no-scrollbar space-y-1">
+              <div className="absolute top-full left-0 mt-3 w-72 glass-panel rounded-[24px] p-2 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-3xl z-50 overflow-hidden">
+                <div className="max-h-64 overflow-y-auto no-scrollbar space-y-1 p-1">
                   {accounts.map((acc) => (
-                    <button key={acc.id} onClick={() => { onAccountChange(acc); setIsAccountMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between group ${currentAccount.id === acc.id ? 'bg-emerald-500/10 border border-emerald-500/20' : 'hover:bg-white/5 border border-transparent'}`}>
-                      <div className="flex flex-col">
-                        <span className={`text-[12px] font-black ${currentAccount.id === acc.id ? 'text-emerald-400' : 'text-white'}`}>{acc.name}</span>
-                        <span className="text-[8px] font-bold text-slate-500 uppercase">{acc.provider}</span>
+                    <div key={acc.id} className="group/item flex items-center gap-1">
+                      <button 
+                        onClick={() => { onAccountChange(acc); setIsAccountMenuOpen(false); }} 
+                        className={`flex-1 text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between group ${currentAccount.id === acc.id ? 'bg-emerald-500/10 border border-emerald-500/20' : 'hover:bg-white/5 border border-transparent'}`}
+                      >
+                        <div className="flex flex-col">
+                          <span className={`text-[12px] font-black ${currentAccount.id === acc.id ? 'text-emerald-400' : 'text-white'}`}>{acc.name}</span>
+                          <span className="text-[8px] font-bold text-slate-500 uppercase">{acc.provider}</span>
+                        </div>
+                        {currentAccount.id === acc.id && <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></div>}
+                      </button>
+                      <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity pr-2">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onEditAccount(acc); setIsAccountMenuOpen(false); }}
+                          className="p-2 text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-all"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onDeleteAccount(acc.id); setIsAccountMenuOpen(false); }}
+                          className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      {currentAccount.id === acc.id && <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></div>}
-                    </button>
+                    </div>
                   ))}
+                </div>
+                <div className="p-2 border-t border-white/5 bg-white/[0.02]">
+                  <button 
+                    onClick={() => { onAddAccount(); setIsAccountMenuOpen(false); }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black text-emerald-400 hover:bg-emerald-500/10 transition-all uppercase tracking-widest border border-dashed border-emerald-500/20"
+                  >
+                    <Plus size={14} /> Register New
+                  </button>
                 </div>
               </div>
             )}
@@ -244,7 +274,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
           <div className="h-8 w-[1px] bg-white/10 mx-1" />
           
           <div className="flex items-center gap-2">
-            {/* Status Button (Ultra Compact) */}
+            {/* Status Button */}
             <div className="relative">
               <button onClick={() => { closeAllMenus(); setIsFilterMenuOpen(!isFilterMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${statusFilter !== 'ALL' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
                 <FilterIcon size={11} /> {statusFilter === 'ALL' ? 'Status' : statusFilter}
@@ -260,7 +290,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
               )}
             </div>
 
-            {/* Strategy Button (Ultra Compact) */}
+            {/* Strategy Button */}
             <div className="relative">
               <button onClick={() => { closeAllMenus(); setIsStrategyMenuOpen(!isStrategyMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${strategyFilter !== 'ALL' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
                 <Zap size={11} /> {strategyFilter === 'ALL' ? 'Strategy' : strategyFilter}
@@ -279,7 +309,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
               )}
             </div>
 
-            {/* Side Button (Ultra Compact) */}
+            {/* Side Button */}
             <div className="relative">
               <button onClick={() => { closeAllMenus(); setIsSideMenuOpen(!isSideMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${sideFilter !== 'ALL' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
                 <Activity size={11} /> {sideFilter === 'ALL' ? 'Side' : sideFilter}
@@ -295,7 +325,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
               )}
             </div>
 
-            {/* Month Button (Ultra Compact) */}
+            {/* Month Button */}
             <div className="relative">
               <button onClick={() => { closeAllMenus(); setIsMonthMenuOpen(!isMonthMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${monthFilter !== 'ALL' ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
                 <Calendar size={11} /> {monthFilter === 'ALL' ? 'Month' : months[monthFilter as number].substring(0, 3)}
@@ -314,7 +344,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
               )}
             </div>
 
-            {/* Range Button (Ultra Compact) */}
+            {/* Range Button */}
             <div className="relative">
               <button onClick={() => { closeAllMenus(); setIsRangeOpen(!isRangeOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${startDate || endDate ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div> Range
