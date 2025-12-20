@@ -26,14 +26,52 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, selectedAcco
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-[84px] glass-panel border-r-0 m-4 rounded-[32px] flex-col items-center py-8 gap-10 flex-shrink-0 z-[60] overflow-hidden relative group/sidebar h-[calc(100vh-32px)]">
-        <div className="relative flex flex-col items-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-emerald-500 rounded-2xl flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform cursor-pointer relative z-10">
-            <div className="relative flex items-center justify-center">
-              <span className="relative z-10">T</span>
-              <span className="absolute z-0 opacity-40 translate-x-[3px] translate-y-[1px]">N</span>
+        
+        {/* Prismatic Vector Monogram Logo - THEME ALIGNED (Emerald/Cyan) */}
+        <div className="relative flex flex-col items-center group cursor-pointer">
+          <div className="w-14 h-14 relative flex items-center justify-center transition-all duration-500 group-hover:scale-105 active:scale-95">
+            
+            {/* Orbital Rings - Theme Emerald */}
+            <div className="absolute inset-0 rounded-2xl border border-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-700"></div>
+            <div className="absolute inset-[-4px] rounded-[20px] border-t-2 border-l-2 border-emerald-500/20 animate-[spin_6s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            {/* Main Logo Body */}
+            <div className="w-12 h-12 bg-gradient-to-br from-[#0f172a] to-[#020617] border border-white/10 rounded-xl flex items-center justify-center overflow-hidden relative shadow-2xl group-hover:border-emerald-500/40 transition-all duration-500">
+              
+              {/* Internal Shimmer Scanning Line */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none"></div>
+
+              {/* Custom SVG TN Glyph - Theme Emerald/Cyan */}
+              <div className="relative z-10 scale-[0.85] group-hover:scale-100 transition-transform duration-500">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path 
+                    d="M8 24V8L16 18L24 8V24" 
+                    stroke="url(#tn-gradient-sidebar)" 
+                    strokeWidth="4" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                  />
+                  <path 
+                    d="M6 10H26M16 10V26" 
+                    stroke="white" 
+                    strokeWidth="4" 
+                    strokeLinecap="round"
+                    className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                  />
+                  <defs>
+                    <linearGradient id="tn-gradient-sidebar" x1="8" y1="8" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#10b981" />
+                      <stop offset="1" stopColor="#06b6d4" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
             </div>
+            
+            {/* Core Volumetric Glow - Emerald */}
+            <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full -z-10 opacity-40 group-hover:opacity-100 group-hover:bg-emerald-400/30 transition-all duration-700"></div>
           </div>
-          <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full scale-150 -z-0 opacity-50"></div>
         </div>
 
         <nav className="flex flex-col items-center gap-4 flex-1 relative w-full">
@@ -96,6 +134,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, selectedAcco
           </button>
         ))}
       </nav>
+
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </>
   );
 };
