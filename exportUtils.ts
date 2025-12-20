@@ -16,7 +16,8 @@ export const exportTradesToCSV = (trades: Trade[], filename: string = 'tradenexu
     'Contracts',
     'Duration',
     'Setup',
-    'Rating'
+    'Rating',
+    'Remarks'
   ];
 
   const rows = trades.map(t => [
@@ -28,7 +29,8 @@ export const exportTradesToCSV = (trades: Trade[], filename: string = 'tradenexu
     t.contracts,
     t.duration,
     `"${t.setup.replace(/"/g, '""')}"`, // Escape quotes in strings
-    t.rating || 0
+    t.rating || 0,
+    `"${(t.remarks || '').replace(/"/g, '""')}"`
   ]);
 
   const csvContent = [

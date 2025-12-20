@@ -17,6 +17,7 @@ export interface Trade {
   setup: string;
   mistakes?: string[];
   rating?: number;
+  remarks?: string;
   screenshot?: string; // Base64 string of the uploaded image
 }
 
