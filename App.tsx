@@ -7,6 +7,7 @@ import CalendarView from './components/CalendarView';
 import PlaybookView from './components/PlaybookView';
 import ReportsView from './components/ReportsView';
 import Modal from './components/Modal';
+import LoginScreen from './components/LoginScreen';
 import { Trade, Side, Status } from './types';
 import { MOCK_TRADES, SETUPS } from './constants';
 import { Trash2, AlertTriangle, Image as ImageIcon, X, Wallet, Building2, Layers, Globe, Pencil, Zap, Upload, Camera } from 'lucide-react';
@@ -25,6 +26,10 @@ const INITIAL_ACCOUNTS: Account[] = [
 ];
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('tradenexus_auth') === 'true';
+  });
+
   const [trades, setTrades] = useState<Trade[]>(() => {
     const saved = localStorage.getItem('tradenexus_trades');
     return saved ? JSON.parse(saved) : MOCK_TRADES;
@@ -77,6 +82,16 @@ const App: React.FC = () => {
     const timer = setTimeout(() => document.body.classList.remove('theme-transition'), 500);
     return () => clearTimeout(timer);
   }, [theme]);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    sessionStorage.setItem('tradenexus_auth', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('tradenexus_auth');
+  };
 
   const handleTradeClick = (trade: Trade) => {
     setSelectedTrade(trade);
@@ -220,15 +235,20 @@ const App: React.FC = () => {
     }
   };
 
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   return (
-    <div className="flex h-screen w-full bg-transparent text-white overflow-hidden selection:bg-cyan-500/30">
-      <div className="flex-shrink-0 animate-fade-in-up">
+    <div className="flex h-screen w-full bg-transparent text-white overflow-hidden selection:bg-cyan-500/30 animate-in fade-in duration-700">
+      <div className="flex-shrink-0">
         <Sidebar 
           currentView={currentView} 
           onNavigate={setCurrentView} 
           theme={theme} 
           onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} 
           selectedAccount={selectedAccount}
+          onLogout={handleLogout}
         />
       </div>
 

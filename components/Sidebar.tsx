@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { LayoutDashboard, Calendar, BookOpen, BarChart3, Settings, Moon, Sun, User } from 'lucide-react';
+import { LayoutDashboard, Calendar, BookOpen, BarChart3, Settings, Moon, Sun, User, LogOut } from 'lucide-react';
 import { Account } from '../App';
 
 interface SidebarProps {
@@ -9,9 +9,10 @@ interface SidebarProps {
   theme: 'dark' | 'light';
   onThemeToggle: () => void;
   selectedAccount: Account;
+  onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThemeToggle, selectedAccount }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThemeToggle, selectedAccount, onLogout }) => {
   const navItems = [
     { id: 'log', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'calendar', icon: Calendar, label: 'Calendar' },
@@ -108,9 +109,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThe
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors"></div>
         </button>
         
-        <div className="w-10 h-10 rounded-full bg-white/5 p-[1px] mt-2 group relative cursor-pointer active:scale-90 transition-transform">
-          <div className="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 flex items-center justify-center text-white border border-white/10 group-hover:border-emerald-500/50 transition-all overflow-hidden shadow-inner">
-            <User size={18} className="text-slate-300 group-hover:scale-110 group-hover:text-white transition-all duration-500" />
+        <div 
+          onClick={onLogout}
+          className="w-10 h-10 rounded-full bg-white/5 p-[1px] mt-2 group relative cursor-pointer active:scale-90 transition-transform"
+        >
+          <div className="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 flex items-center justify-center text-white border border-white/10 group-hover:border-rose-500/50 transition-all overflow-hidden shadow-inner">
+            <User size={18} className="text-slate-300 group-hover:hidden" />
+            <LogOut size={16} className="text-rose-400 hidden group-hover:block" />
           </div>
           {/* Status Indicator Dot */}
           <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
