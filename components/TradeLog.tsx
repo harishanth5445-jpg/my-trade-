@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Filter as FilterIcon, ChevronDown, Plus, Search, MoreHorizontal, Trash2, TrendingUp, TrendingDown, Check, X, Wallet, Clock, Globe, Pencil, Calendar, XCircle, Zap, Activity } from 'lucide-react';
+import { Filter as FilterIcon, ChevronDown, Plus, Search, MoreHorizontal, Trash2, TrendingUp, TrendingDown, Check, X, Wallet, Clock, Globe, Pencil, Calendar, XCircle, Zap, Activity, BellRing } from 'lucide-react';
 import { Trade, Status } from '../types';
 import { Account } from '../App';
 
@@ -9,6 +9,7 @@ interface TradeLogProps {
   onTradeClick: (trade: Trade) => void;
   onDelete: (id: string) => void;
   onNewTrade: () => void;
+  onNavigateToNews: () => void;
   currentAccount: Account;
   accounts: Account[];
   onAccountChange: (account: Account) => void;
@@ -97,6 +98,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
   onTradeClick, 
   onDelete, 
   onNewTrade, 
+  onNavigateToNews,
   currentAccount, 
   accounts, 
   onAccountChange,
@@ -108,7 +110,6 @@ const TradeLog: React.FC<TradeLogProps> = ({
   const [statusFilter, setStatusFilter] = useState<Status | 'ALL'>('ALL');
   
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
 
   const filteredTrades = useMemo(() => {
     return trades.filter(trade => {
@@ -179,9 +180,15 @@ const TradeLog: React.FC<TradeLogProps> = ({
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600" size={14} />
             <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..." className="w-full pl-10 pr-4 py-2.5 text-[11px] bg-white/5 border border-white/10 rounded-xl outline-none text-white font-bold" />
           </div>
-          <button onClick={onNewTrade} className="w-full md:w-auto bg-emerald-400 text-black px-6 py-2.5 rounded-xl font-black text-[11px] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg uppercase tracking-widest">
-            <Plus size={16} /> Log Entry
-          </button>
+          
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <button onClick={onNavigateToNews} className="flex-1 md:flex-none bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-2.5 rounded-xl font-black text-[11px] transition-all flex items-center justify-center gap-2 active:scale-95 uppercase tracking-widest hover:bg-amber-500/20">
+              <BellRing size={16} /> News
+            </button>
+            <button onClick={onNewTrade} className="flex-1 md:flex-none bg-emerald-400 text-black px-6 py-2.5 rounded-xl font-black text-[11px] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg uppercase tracking-widest">
+              <Plus size={16} /> Log Entry
+            </button>
+          </div>
         </div>
       </header>
 
@@ -196,7 +203,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
         <div className="overflow-x-auto overflow-y-auto flex-1 no-scrollbar relative">
           <table className="w-full text-left border-separate border-spacing-0 min-w-[800px]">
             <thead>
-              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] sticky top-0 z-10 backdrop-blur-3xl" style={{ backgroundColor: 'rgba(10, 10, 11, 0.98)' }}>
+              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] sticky top-0 z-10 backdrop-blur-3xl" style={{ backgroundColor: 'var(--bg-color)' }}>
                 <th className="px-6 md:px-10 py-5 border-b border-white/5">Execution</th>
                 <th className="px-6 md:px-10 py-5 border-b border-white/5">Instrument</th>
                 <th className="px-6 md:px-10 py-5 border-b border-white/5 text-center">Outcome</th>

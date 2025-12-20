@@ -4,13 +4,13 @@ import Sidebar from './components/Sidebar';
 import TradeLog from './components/TradeLog';
 import TradeDetail from './components/TradeDetail';
 import CalendarView from './components/CalendarView';
-import PlaybookView from './components/PlaybookView';
+import NewsView from './components/NewsView';
 import ReportsView from './components/ReportsView';
 import Modal from './components/Modal';
 import LoginScreen from './components/LoginScreen';
-import { Trade, Side, Status } from './types';
-import { MOCK_TRADES, SETUPS } from './constants';
-import { Trash2, AlertTriangle, Image as ImageIcon, X, Wallet, Building2, Layers, Globe, Pencil, Zap, Upload, Camera } from 'lucide-react';
+import { Trade, Side, Status, NewsEvent } from './types';
+import { MOCK_TRADES, SETUPS, MOCK_NEWS } from './constants';
+import { Trash2, AlertTriangle, X, Wallet, Building2, Layers, Globe, Pencil, Zap, Camera } from 'lucide-react';
 
 export interface Account {
   id: string;
@@ -35,6 +35,11 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : MOCK_TRADES;
   });
 
+  const [news, setNews] = useState<NewsEvent[]>(() => {
+    const saved = localStorage.getItem('tradenexus_news');
+    return saved ? JSON.parse(saved) : MOCK_NEWS;
+  });
+
   const [accounts, setAccounts] = useState<Account[]>(() => {
     const saved = localStorage.getItem('tradenexus_accounts');
     return saved ? JSON.parse(saved) : INITIAL_ACCOUNTS;
@@ -48,12 +53,16 @@ const App: React.FC = () => {
   });
 
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
-  const [currentView, setCurrentView] = useState<'log' | 'reports' | 'calendar' | 'playbook'>('log');
+  const [currentView, setCurrentView] = useState<'log' | 'reports' | 'calendar' | 'news'>('log');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   
   useEffect(() => {
     localStorage.setItem('tradenexus_trades', JSON.stringify(trades));
   }, [trades]);
+
+  useEffect(() => {
+    localStorage.setItem('tradenexus_news', JSON.stringify(news));
+  }, [news]);
 
   useEffect(() => {
     localStorage.setItem('tradenexus_accounts', JSON.stringify(accounts));
@@ -115,6 +124,18 @@ const App: React.FC = () => {
   const handleUpdateTrade = (updatedTrade: Trade) => {
     setTrades(prev => prev.map(t => t.id === updatedTrade.id ? updatedTrade : t));
     setSelectedTrade(updatedTrade);
+  };
+
+  const handleUpdateNews = (updatedEvent: NewsEvent) => {
+    setNews(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
+  };
+
+  const handleAddNews = (newEvent: NewsEvent) => {
+    setNews(prev => [newEvent, ...prev]);
+  };
+
+  const handleDeleteNews = (id: string) => {
+    setNews(prev => prev.filter(e => e.id !== id));
   };
 
   const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
@@ -216,8 +237,15 @@ const App: React.FC = () => {
 
     switch (currentView) {
       case 'calendar': return <CalendarView trades={accountTrades} onTradeClick={handleTradeClick} />;
-      case 'playbook': return <PlaybookView />;
-      case 'reports': return <ReportsView trades={accountTrades} />;
+      case 'news': return (
+        <NewsView 
+          news={news} 
+          onAddNews={handleAddNews} 
+          onUpdateNews={handleUpdateNews} 
+          onDeleteNews={handleDeleteNews} 
+        />
+      );
+      case 'reports': return <ReportsView trades={accountTrades} onNavigateToNews={() => setCurrentView('news')} />;
       case 'log':
       default:
         return (
@@ -226,6 +254,7 @@ const App: React.FC = () => {
             onTradeClick={handleTradeClick} 
             onDelete={confirmDelete} 
             onNewTrade={() => setIsNewTradeOpen(true)}
+            onNavigateToNews={() => setCurrentView('news')}
             currentAccount={selectedAccount}
             accounts={accounts}
             onAccountChange={setSelectedAccount}
@@ -447,7 +476,6 @@ const App: React.FC = () => {
       </Modal>
 
       {/* Simple Modals for Delete Confirmations */}
-      {/* (Skipped for brevity as they are already good, but could be adjusted if needed) */}
       <Modal isOpen={!!accountToDeleteId} onClose={() => setAccountToDeleteId(null)} title="Destroy Environment">
         <div className="flex flex-col items-center text-center gap-8">
           <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">

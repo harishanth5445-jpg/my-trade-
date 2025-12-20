@@ -33,3 +33,16 @@ export interface PLPoint {
   time: string;
   value: number;
 }
+
+export interface NewsEvent {
+  id: string;
+  time: string;
+  currency: string;
+  asset?: string; // Specific instrument like GC, NQ, ES
+  event: string;
+  impact: 'HIGH' | 'MED' | 'LOW';
+  forecast?: string;
+  previous?: string;
+  description?: string;
+  typicalReaction?: string;
+}

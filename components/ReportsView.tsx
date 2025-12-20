@@ -1,17 +1,18 @@
 
 import React, { useMemo, useState } from 'react';
-import { BarChart3, TrendingUp, Target, Activity, Zap, Calendar as CalendarIcon, Filter, Brain, CheckSquare, ShieldCheck, Timer, AlertCircle, BarChart as BarChartIcon, Clock, ChevronDown, Download } from 'lucide-react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine } from 'recharts';
+import { BarChart3, TrendingUp, Target, Activity, Zap, Calendar as CalendarIcon, ChevronDown, Download, BellRing } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Trade } from '../types';
 import { exportTradesToCSV } from '../exportUtils';
 
 interface ReportsViewProps {
   trades: Trade[];
+  onNavigateToNews: () => void;
 }
 
 type Timeframe = 'ALL' | '7D' | '30D' | '90D';
 
-const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
+const ReportsView: React.FC<ReportsViewProps> = ({ trades, onNavigateToNews }) => {
   const [timeframe, setTimeframe] = useState<Timeframe>('ALL');
   const [isTimeframeOpen, setIsTimeframeOpen] = useState(false);
 
@@ -34,9 +35,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
     const grossWins = filteredTrades.filter(t => t.netPL > 0).reduce((acc, t) => acc + t.netPL, 0);
     const grossLosses = Math.abs(filteredTrades.filter(t => t.netPL < 0).reduce((acc, t) => acc + t.netPL, 0));
     const profitFactor = grossLosses > 0 ? grossWins / grossLosses : grossWins;
-    const avgWin = wins > 0 ? grossWins / wins : 0;
-    const avgLoss = losses > 0 ? grossLosses / losses : 0;
-    return { total, wins, losses, netPL, winRate, profitFactor, avgWin, avgLoss };
+    return { total, wins, losses, netPL, winRate, profitFactor };
   }, [filteredTrades]);
 
   const equityData = useMemo(() => {
@@ -86,6 +85,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
+          <button onClick={onNavigateToNews} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-amber-500/20 transition-all">
+             <BellRing size={14} className="animate-pulse" /> News
+          </button>
+
           <div className="relative flex-1 md:flex-none">
             <button onClick={() => setIsTimeframeOpen(!isTimeframeOpen)} className="w-full flex items-center gap-2 text-[10px] font-black text-slate-300 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/10 uppercase tracking-widest min-w-[120px] justify-between">
               <div className="flex items-center gap-2">

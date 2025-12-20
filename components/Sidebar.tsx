@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { LayoutDashboard, Calendar, BookOpen, BarChart3, Settings, Moon, Sun, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, Calendar, Newspaper, BarChart3, Settings, Moon, Sun, User, LogOut } from 'lucide-react';
 import { Account } from '../App';
 
 interface SidebarProps {
@@ -16,7 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThe
   const navItems = [
     { id: 'log', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'calendar', icon: Calendar, label: 'Calendar' },
-    { id: 'playbook', icon: BookOpen, label: 'Playbook' },
+    { id: 'news', icon: Newspaper, label: 'Upcoming News' },
     { id: 'reports', icon: BarChart3, label: 'Reports' },
   ];
 
