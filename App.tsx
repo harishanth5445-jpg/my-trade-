@@ -10,7 +10,7 @@ import Modal from './components/Modal';
 import LoginScreen from './components/LoginScreen';
 import { Trade, Side, Status, NewsEvent } from './types';
 import { MOCK_TRADES, SETUPS, MOCK_NEWS } from './constants';
-import { Trash2, AlertTriangle, X, Wallet, Building2, Layers, Globe, Pencil, Zap, Camera } from 'lucide-react';
+import { Trash2, AlertTriangle, X, Wallet, Building2, Layers, Globe, Pencil, Zap, Camera, LogOut } from 'lucide-react';
 
 export interface Account {
   id: string;
@@ -78,6 +78,7 @@ const App: React.FC = () => {
   const [isNewTradeOpen, setIsNewTradeOpen] = useState(false);
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const [isEditAccountOpen, setIsEditAccountOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
   const [accountToDeleteId, setAccountToDeleteId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -89,9 +90,14 @@ const App: React.FC = () => {
     sessionStorage.setItem('tradenexus_auth', 'true');
   };
 
-  const handleLogout = () => {
+  const initiateLogout = () => {
+    setIsLogoutConfirmOpen(true);
+  };
+
+  const executeLogout = () => {
     setIsAuthenticated(false);
     sessionStorage.removeItem('tradenexus_auth');
+    setIsLogoutConfirmOpen(false);
   };
 
   const handleTradeClick = (trade: Trade) => {
@@ -272,7 +278,7 @@ const App: React.FC = () => {
           currentView={currentView} 
           onNavigate={setCurrentView} 
           selectedAccount={selectedAccount}
-          onLogout={handleLogout}
+          onLogout={initiateLogout}
         />
       </div>
 
@@ -468,7 +474,23 @@ const App: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Simple Modals for Delete Confirmations */}
+      {/* Simple Modals for Confirmations */}
+      <Modal isOpen={isLogoutConfirmOpen} onClose={() => setIsLogoutConfirmOpen(false)} title="Terminate Session">
+        <div className="flex flex-col items-center text-center gap-8">
+          <div className="w-24 h-24 rounded-[32px] bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+            <LogOut size={48} />
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-2xl font-black text-white tracking-tight">Disconnect Terminal?</h3>
+            <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-[320px]">You are about to sever the uplink. Your session data will be preserved, but you will need to re-authenticate to regain access.</p>
+          </div>
+          <div className="flex w-full gap-4 pt-4">
+            <button onClick={() => setIsLogoutConfirmOpen(false)} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">Stay Connected</button>
+            <button onClick={executeLogout} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-white bg-gradient-to-br from-emerald-500 to-cyan-700 hover:opacity-90 transition-all uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-xl">Disconnect</button>
+          </div>
+        </div>
+      </Modal>
+
       <Modal isOpen={!!accountToDeleteId} onClose={() => setAccountToDeleteId(null)} title="Destroy Environment">
         <div className="flex flex-col items-center text-center gap-8">
           <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">

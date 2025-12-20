@@ -121,18 +121,35 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, selectedAcco
         </div>
       </aside>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-20 glass-panel border-t border-white/10 z-[100] flex items-center justify-around px-6 rounded-t-[32px] shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            className={`flex flex-col items-center gap-1 transition-all ${currentView === item.id ? 'text-emerald-400' : 'text-slate-500'}`}
-          >
-            <item.icon size={24} className={currentView === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : ''} />
-            <span className="text-[8px] font-black uppercase tracking-widest">{item.label}</span>
+      {/* Mobile Bottom Nav - UPDATED TO INCLUDE SETTINGS & LOGOUT */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-20 glass-panel border-t border-white/10 z-[100] flex items-center justify-between px-4 rounded-t-[32px] shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center justify-around w-full">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`flex flex-col items-center gap-1 transition-all flex-1 ${currentView === item.id ? 'text-emerald-400' : 'text-slate-500'}`}
+            >
+              <item.icon size={22} className={currentView === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : ''} />
+              <span className="text-[7px] font-black uppercase tracking-widest">{item.label}</span>
+            </button>
+          ))}
+          
+          {/* Settings Button (Mobile) */}
+          <button className="flex flex-col items-center gap-1 transition-all text-slate-500 hover:text-white flex-1">
+            <Settings size={22} />
+            <span className="text-[7px] font-black uppercase tracking-widest">Settings</span>
           </button>
-        ))}
+
+          {/* Logout Button (Mobile) */}
+          <button 
+            onClick={onLogout}
+            className="flex flex-col items-center gap-1 transition-all text-slate-500 hover:text-rose-400 flex-1"
+          >
+            <LogOut size={22} />
+            <span className="text-[7px] font-black uppercase tracking-widest">Logout</span>
+          </button>
+        </div>
       </nav>
 
       <style>{`
