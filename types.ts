@@ -36,13 +36,13 @@ export interface PLPoint {
 
 export interface NewsEvent {
   id: string;
+  date: string;
   time: string;
-  currency: string;
-  asset?: string; // Specific instrument like GC, NQ, ES
+  asset: string; 
   event: string;
   impact: 'HIGH' | 'MED' | 'LOW';
-  forecast?: string;
-  previous?: string;
+  profitExpectation?: number;
+  profitGained?: number;
   description?: string;
   typicalReaction?: string;
 }

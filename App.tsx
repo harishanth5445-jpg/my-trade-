@@ -54,7 +54,6 @@ const App: React.FC = () => {
 
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [currentView, setCurrentView] = useState<'log' | 'reports' | 'calendar' | 'news'>('log');
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   
   useEffect(() => {
     localStorage.setItem('tradenexus_trades', JSON.stringify(trades));
@@ -84,10 +83,6 @@ const App: React.FC = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -276,8 +271,6 @@ const App: React.FC = () => {
         <Sidebar 
           currentView={currentView} 
           onNavigate={setCurrentView} 
-          theme={theme} 
-          onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} 
           selectedAccount={selectedAccount}
           onLogout={handleLogout}
         />

@@ -4,9 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { MOCK_PL_DATA } from '../constants';
 
 const RunningPLChart: React.FC = () => {
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  // Use pure black for light mode in B&W theme
-  const brandColor = isLight ? '#000000' : '#22d3ee';
+  const brandColor = '#22d3ee';
 
   return (
     <div className="w-full h-full">
@@ -22,11 +20,11 @@ const RunningPLChart: React.FC = () => {
           <YAxis hide domain={['dataMin - 100', 'dataMax + 100']} />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: isLight ? '#ffffff' : '#000', 
-              border: `1px solid ${isLight ? '#000000' : 'rgba(255,255,255,0.1)'}`, 
+              backgroundColor: '#000', 
+              border: '1px solid rgba(255,255,255,0.1)', 
               borderRadius: '12px' 
             }}
-            itemStyle={{ color: isLight ? '#000000' : '#fff' }}
+            itemStyle={{ color: '#fff' }}
           />
           <Area 
             type="monotone" 

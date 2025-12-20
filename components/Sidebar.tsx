@@ -1,18 +1,16 @@
 
 import React, { useMemo } from 'react';
-import { LayoutDashboard, Calendar, Newspaper, BarChart3, Settings, Moon, Sun, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, Calendar, Newspaper, BarChart3, Settings, User, LogOut } from 'lucide-react';
 import { Account } from '../App';
 
 interface SidebarProps {
   currentView: string;
   onNavigate: (view: any) => void;
-  theme: 'dark' | 'light';
-  onThemeToggle: () => void;
   selectedAccount: Account;
   onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThemeToggle, selectedAccount, onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, selectedAccount, onLogout }) => {
   const navItems = [
     { id: 'log', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'calendar', icon: Calendar, label: 'Calendar' },
@@ -69,9 +67,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThe
         </nav>
 
         <div className="flex flex-col items-center gap-4 w-full relative z-10">
-          <button onClick={onThemeToggle} className="w-12 h-12 flex items-center justify-center rounded-2xl text-slate-500 hover:text-emerald-400 hover:bg-white/5 transition-all">
-            {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
           <button className="w-12 h-12 flex items-center justify-center rounded-2xl text-slate-500 hover:text-white hover:bg-white/5 transition-all">
             <Settings size={20} />
           </button>
@@ -97,10 +92,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, theme, onThe
             <span className="text-[8px] font-black uppercase tracking-widest">{item.label}</span>
           </button>
         ))}
-        <button onClick={onThemeToggle} className="flex flex-col items-center gap-1 text-slate-500">
-           {theme === 'dark' ? <Moon size={24} /> : <Sun size={24} />}
-           <span className="text-[8px] font-black uppercase tracking-widest">Theme</span>
-        </button>
       </nav>
     </>
   );

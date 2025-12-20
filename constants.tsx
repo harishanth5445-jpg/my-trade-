@@ -10,9 +10,16 @@ const getDay = (day: number) => {
   return `${month}/${d}/${y}`;
 };
 
+// YYYY-MM-DD for input compatibility
+const getISODate = (dayOffset = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + dayOffset);
+  return d.toISOString().split('T')[0];
+};
+
 export const SETUPS = ['News Trade', 'ORB Strategy'];
-export const INSTRUMENTS = ['GC', 'NQ', 'ES', 'CL', 'NG'];
-export const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD'];
+export const INSTRUMENTS = ['GC', 'NQ', 'ES', 'CL', 'NG', 'AUD', 'GBP', 'CHF', 'CAD', 'ZS'];
+export const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF'];
 
 export const MOCK_TRADES: Trade[] = [
   { id: '1', accountId: 'acc_1', date: getDay(26), symbol: 'MES', side: 'SHORT', status: 'LOSS', netPL: -300.00, contracts: 30, duration: '24m', mae: 5530.25, mfe: 5524.00, setup: 'News Trade', rating: 2 },
@@ -45,39 +52,51 @@ export const MOCK_PL_DATA: PLPoint[] = [
 export const MOCK_NEWS: NewsEvent[] = [
   { 
     id: 'n1', 
+    date: getISODate(0),
     time: '08:30 AM', 
-    currency: 'USD', 
     asset: 'NQ',
-    event: 'CPI m/m', 
+    event: 'CPI RELEASE', 
     impact: 'HIGH', 
-    forecast: '0.2%', 
-    previous: '0.1%',
-    description: 'Measures the change in the price of goods and services purchased by consumers.',
-    typicalReaction: 'Higher than Forecast is bullish for USD, Bearish for Equities.'
+    profitExpectation: 1200,
+    profitGained: 1450,
+    description: 'High volatility expected on Nasdaq open.',
+    typicalReaction: 'Bearish if CPI > 0.3%'
   },
   { 
     id: 'n2', 
-    time: '08:30 AM', 
-    currency: 'USD', 
-    asset: 'ES',
-    event: 'Core CPI m/m', 
+    date: getISODate(1),
+    time: '10:30 AM', 
+    asset: 'CL',
+    event: 'OIL INVENTORIES', 
     impact: 'HIGH', 
-    forecast: '0.3%', 
-    previous: '0.2%',
-    description: 'Consumer price index excluding volatile food and energy costs.',
-    typicalReaction: 'Significant beat often leads to immediate aggressive equity selling.'
+    profitExpectation: 800,
+    profitGained: -200,
+    description: 'Weekly crude draw report.',
+    typicalReaction: 'Bullish on draw > 2M'
   },
   { 
     id: 'n3', 
-    time: '10:30 AM', 
-    currency: 'USD', 
-    asset: 'CL',
-    event: 'EIA Crude Oil Inventories', 
+    date: getISODate(2),
+    time: '01:00 PM', 
+    asset: 'GC',
+    event: 'FED SPEAK', 
+    impact: 'MED', 
+    profitExpectation: 500,
+    profitGained: 0,
+    description: 'Powell commentary on inflation.',
+    typicalReaction: 'Gold strength on dovish tone'
+  },
+  { 
+    id: 'n4', 
+    date: getISODate(0),
+    time: '03:30 AM', 
+    asset: 'GBP',
+    event: 'EMPLOYMENT DATA', 
     impact: 'HIGH', 
-    forecast: '-1.2M', 
-    previous: '0.8M',
-    description: 'Measures the change in the number of barrels of crude oil held in inventory by commercial firms.',
-    typicalReaction: 'Inventory draw typically bullish for CL prices.'
+    profitExpectation: 450,
+    profitGained: 450,
+    description: 'UK jobs report.',
+    typicalReaction: 'Stronger GBP on lower unemployment'
   }
 ];
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { MOCK_CHART_DATA } from '../constants';
@@ -11,9 +12,6 @@ const CandlestickChart: React.FC = () => {
     wickBottom: d.low,
     wickHeight: d.high - d.low
   }));
-
-  // Helper to get variable values from computed styles if needed for light mode chart logic
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 
   return (
     <div className="w-full h-full rounded-2xl border border-white/5 overflow-hidden p-4" style={{ backgroundColor: 'var(--chart-bg)' }}>
@@ -37,14 +35,14 @@ const CandlestickChart: React.FC = () => {
           <Tooltip 
             cursor={{ stroke: 'var(--chart-grid)', strokeWidth: 1 }}
             contentStyle={{ 
-              backgroundColor: isLight ? '#f8fafc' : '#000', 
-              border: `1px solid ${isLight ? 'rgba(15,23,42,0.1)' : 'rgba(255,255,255,0.1)'}`, 
+              backgroundColor: '#000', 
+              border: '1px solid rgba(255,255,255,0.1)', 
               borderRadius: '12px', 
               fontSize: '10px', 
               fontWeight: 900, 
-              color: isLight ? '#0f172a' : '#fff' 
+              color: '#fff' 
             }}
-            itemStyle={{ color: isLight ? '#0f172a' : '#fff' }}
+            itemStyle={{ color: '#fff' }}
           />
           <Bar dataKey="wickHeight" stackId="wick" barSize={1} isAnimationActive={false}>
             {processedData.map((entry, index) => (
