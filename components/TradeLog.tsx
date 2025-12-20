@@ -154,7 +154,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, icon, value, opt
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-44 glass-panel border border-white/10 rounded-xl p-1.5 z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1">
+        <div className="absolute top-full left-0 mt-2 w-44 glass-panel border border-white/10 rounded-xl p-1.5 z-[150] shadow-2xl animate-in fade-in slide-in-from-top-1">
           <div className="max-h-60 overflow-y-auto no-scrollbar space-y-0.5">
             <button 
               onClick={() => { onChange(allLabel); setIsOpen(false); }}
@@ -353,8 +353,8 @@ const TradeLog: React.FC<TradeLogProps> = ({
         </div>
       </header>
 
-      {/* Advanced Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 px-2 animate-fade-in-up stagger-1">
+      {/* Advanced Filter Toolbar - High z-index to overlay stat cards */}
+      <div className="relative z-50 flex flex-wrap items-center gap-2 px-2 animate-fade-in-up stagger-1">
         <div className="flex items-center gap-1.5 text-slate-600 mr-2">
           <FilterIcon size={12} />
           <span className="text-[8px] font-black uppercase tracking-widest">Filters</span>
@@ -378,7 +378,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
           </button>
 
           {isDateRangeOpen && (
-            <div className="absolute top-full left-0 mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1">
+            <div className="absolute top-full left-0 mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 z-[150] shadow-2xl animate-in fade-in slide-in-from-top-1">
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">From Date</label>
@@ -565,7 +565,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
                 <BarChart2 size={32} />
               </div>
               <div className="text-center">
-                <p className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-300">No matching telemetry</p>
+                <p className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-300">No matching telemetry record</p>
                 <p className="text-[10px] font-bold text-slate-600 mt-2">Adjust your active filter parameters</p>
               </div>
             </div>
