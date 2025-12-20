@@ -37,7 +37,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
 
   return (
     <div className="flex flex-col h-full p-4 pl-0 gap-4 overflow-hidden">
-      <header className="px-10 py-6 glass-panel rounded-[32px] flex items-center justify-between animate-fade-in-up border-white/10">
+      <header className="px-10 py-6 glass-panel rounded-[32px] flex items-center justify-between border-white/10">
         <div className="flex items-center gap-6">
           <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] group transition-all">
             <BarChart3 size={24} className="group-hover:scale-110 transition-transform" />
@@ -57,7 +57,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto no-scrollbar space-y-4 animate-fade-in-up">
+      <div className="flex-1 overflow-auto no-scrollbar space-y-4">
         <div className="grid grid-cols-4 gap-4">
           <WideReportStatCard title="Portfolio Net" value={`$${stats.netPL.toLocaleString()}`} icon={<TrendingUp size={16}/>} />
           <WideReportStatCard title="Edge Ratio" value={`${stats.winRate.toFixed(1)}%`} icon={<Target size={16}/>} />
