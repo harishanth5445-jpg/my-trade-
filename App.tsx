@@ -9,7 +9,7 @@ import ReportsView from './components/ReportsView';
 import Modal from './components/Modal';
 import { Trade, Side, Status } from './types';
 import { MOCK_TRADES, SETUPS } from './constants';
-import { Trash2, AlertTriangle, Image as ImageIcon, X, Wallet, Building2, Layers, Globe, Pencil } from 'lucide-react';
+import { Trash2, AlertTriangle, Image as ImageIcon, X, Wallet, Building2, Layers, Globe, Pencil, Zap, Upload, Camera } from 'lucide-react';
 
 export interface Account {
   id: string;
@@ -222,7 +222,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full bg-transparent text-white overflow-hidden selection:bg-cyan-500/30">
-      {/* Properly aligned Sidebar wrapper */}
       <div className="flex-shrink-0 animate-fade-in-up">
         <Sidebar 
           currentView={currentView} 
@@ -233,7 +232,6 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* Main Content Area - Aligned Gutter */}
       <main 
         key={selectedTrade ? `detail-${selectedTrade.id}` : currentView} 
         className="flex-1 min-w-0 overflow-hidden z-10 view-transition-enter"
@@ -241,7 +239,6 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
-      {/* Modal Alignment and Spacing - Register Account */}
       <Modal isOpen={isAddAccountOpen} onClose={() => setIsAddAccountOpen(false)} title="Register Environment">
         <form onSubmit={handleAddAccount} className="space-y-6">
           <div className="flex flex-col items-center gap-2 mb-6">
@@ -282,7 +279,6 @@ const App: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Rest of modals updated with same alignment pattern... */}
       <Modal isOpen={isNewTradeOpen} onClose={() => { setIsNewTradeOpen(false); setScreenshotPreview(null); }} title="Log Execution">
         <form onSubmit={handleAddTrade} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -295,6 +291,18 @@ const App: React.FC = () => {
               <input name="date" type="datetime-local" defaultValue={getCurrentDateTime()} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all [color-scheme:dark]" />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+              <Zap size={12} className="text-emerald-400" /> Strategy / Protocol
+            </label>
+            <select name="setup" required className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-emerald-500/50 outline-none appearance-none cursor-pointer">
+              {SETUPS.map(setup => (
+                <option key={setup} value={setup} className="bg-slate-900">{setup}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Direction</label>
@@ -318,6 +326,7 @@ const App: React.FC = () => {
               </select>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Net Flow ($)</label>
@@ -328,13 +337,50 @@ const App: React.FC = () => {
               <input name="contracts" type="number" required placeholder="1" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all" />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Execution Evidence (Screenshot)</label>
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-emerald-500/30 hover:bg-white/5 transition-all group overflow-hidden relative"
+            >
+              {screenshotPreview ? (
+                <>
+                  <img src={screenshotPreview} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setScreenshotPreview(null); }}
+                      className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
+                    <Camera size={20} />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-300">Click to upload snapshot</span>
+                </>
+              )}
+            </div>
+            <input 
+              ref={fileInputRef}
+              type="file" 
+              accept="image/*" 
+              onChange={handleFileChange} 
+              className="hidden" 
+            />
+          </div>
+
           <button type="submit" className="w-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-black py-5 rounded-2xl font-black text-sm hover:opacity-90 transition-all glow-cyan mt-6 active:scale-95 shadow-xl">
             Register Execution
           </button>
         </form>
       </Modal>
 
-      {/* Delete Trade Confirmation Modal Aligned */}
       <Modal isOpen={!!deleteConfirmId} onClose={() => setDeleteConfirmId(null)} title="Destructive Action">
         <div className="flex flex-col items-center text-center gap-8">
           <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
