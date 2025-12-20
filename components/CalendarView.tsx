@@ -17,16 +17,12 @@ interface DayStats {
 const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // Calculate daily P&L and store trades per date
   const dailyStats = useMemo(() => {
     const stats: Record<string, DayStats> = {};
     trades.forEach(trade => {
-      // Input format is MM/DD/YYYY
       const [m, d, y] = trade.date.split('/');
       const dateKey = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-      if (!stats[dateKey]) {
-        stats[dateKey] = { pl: 0, trades: [] };
-      }
+      if (!stats[dateKey]) stats[dateKey] = { pl: 0, trades: [] };
       stats[dateKey].pl += trade.netPL;
       stats[dateKey].trades.push(trade);
     });
@@ -35,20 +31,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => 
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = new Date(year, month, 1).getDay();
 
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-  const goToToday = () => setCurrentDate(new Date());
 
-  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(currentDate);
-
-  const handleExport = () => {
-    const filename = `Performance_Report_${monthName}_${year}.csv`;
-    exportTradesToCSV(trades, filename);
-  };
+  const monthName = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(currentDate);
 
   const renderCells = () => {
     const cells = [];
@@ -58,183 +47,80 @@ const CalendarView: React.FC<CalendarViewProps> = ({ trades, onTradeClick }) => 
     for (let i = 0; i < totalCells; i++) {
       const dayNumber = i - firstDayOfMonth + 1;
       const isCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
-      
       const dateString = isCurrentMonth ? `${year}-${(month + 1).toString().padStart(2, '0')}-${dayNumber.toString().padStart(2, '0')}` : null;
       const stats = dateString ? dailyStats[dateString] : null;
-
-      if (stats) {
-        currentWeekPL += stats.pl;
-      }
+      if (stats) currentWeekPL += stats.pl;
 
       if (!isCurrentMonth) {
-        cells.push(<div key={`empty-${i}`} className="bg-white/[0.01] h-40 border-b border-r border-white/5"></div>);
+        cells.push(<div key={`empty-${i}`} className="bg-white/[0.01] h-28 md:h-40 border-b border-r border-white/5"></div>);
       } else {
-        const isToday = new Date().toDateString() === new Date(year, month, dayNumber).toDateString();
         cells.push(
-          <div key={dayNumber} className={`h-40 p-3 border-b border-r border-white/5 transition-all hover:bg-white/10 group relative flex flex-col ${isToday ? 'bg-cyan-500/10' : 'bg-transparent'}`}>
-            <div className="flex justify-between items-start mb-2">
-              <span className={`text-xs font-black ${isToday ? 'text-cyan-400' : 'text-slate-500'}`}>
-                {dayNumber}
-              </span>
-              {stats && (
-                <span className={`text-[9px] font-black uppercase tracking-tighter ${stats.pl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {stats.trades.length} {stats.trades.length === 1 ? 'Trade' : 'Trades'}
-                </span>
-              )}
-            </div>
-            
-            <div className="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pb-2">
-              {stats?.trades.map((trade) => (
-                <button
-                  key={trade.id}
-                  onClick={(e) => { e.stopPropagation(); onTradeClick(trade); }}
-                  className={`w-full text-left p-1.5 rounded-lg border flex items-center justify-between group/pill transition-all active:scale-95 ${
-                    trade.netPL >= 0 
-                    ? 'bg-emerald-500/5 border-emerald-500/20 hover:bg-emerald-500/10' 
-                    : 'bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10'
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5 overflow-hidden">
-                    <div className={`w-1.5 h-1.5 rounded-full ${trade.netPL >= 0 ? 'bg-emerald-400' : 'bg-rose-400'}`}></div>
-                    <span className="text-[9px] font-black text-white uppercase tracking-tight truncate">{trade.symbol}</span>
-                  </div>
-                  <span className={`text-[9px] font-black tabular-nums ${trade.netPL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    ${Math.abs(trade.netPL).toFixed(0)}
-                  </span>
-                </button>
+          <div key={dayNumber} className="h-28 md:h-40 p-2 md:p-3 border-b border-r border-white/5 hover:bg-white/10 transition-all flex flex-col">
+            <span className="text-[10px] font-black text-slate-500 mb-1">{dayNumber}</span>
+            <div className="flex-1 overflow-hidden space-y-1">
+              {stats?.trades.slice(0, 2).map(t => (
+                <div key={t.id} className={`w-full h-1.5 md:h-2 rounded-full ${t.netPL >= 0 ? 'bg-emerald-400' : 'bg-rose-400'} opacity-60`} />
               ))}
             </div>
-
             {stats && (
-              <div className="mt-auto pt-2 border-t border-white/5 bg-white/[0.02] -mx-3 -mb-3 px-3 pb-2 rounded-b-[32px]">
-                <div className="flex justify-between items-center">
-                  <div className={`text-sm font-black ${stats.pl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {stats.pl >= 0 ? '+' : '-'}${Math.abs(stats.pl).toLocaleString(undefined, { minimumFractionDigits: 0 })}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {stats.pl >= 0 ? <TrendingUp size={10} className="text-emerald-400" /> : <TrendingDown size={10} className="text-rose-400" />}
-                  </div>
-                </div>
+              <div className="mt-auto">
+                <span className={`text-[8px] md:text-[10px] font-black ${stats.pl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  ${Math.abs(stats.pl).toFixed(0)}
+                </span>
               </div>
             )}
           </div>
         );
       }
 
-      // At the end of every week (7 cells), add a summary cell
       if ((i + 1) % 7 === 0) {
         cells.push(
-          <div key={`weekly-${i}`} className="h-40 border-b border-white/5 bg-white/[0.03] flex flex-col items-center justify-center p-4 relative group/weekly">
-            <div className="absolute top-3 left-1/2 -translate-x-1/2">
-                <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Week Total</span>
-            </div>
-            <div className={`flex flex-col items-center gap-2 ${currentWeekPL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {currentWeekPL >= 0 ? <TrendingUp size={20} className="animate-pulse" /> : <TrendingDown size={20} className="animate-pulse" />}
-                <div className="text-center">
-                    <div className="text-xs font-black tracking-tighter">
-                        {currentWeekPL >= 0 ? '+' : '-'}${Math.abs(currentWeekPL).toLocaleString(undefined, { minimumFractionDigits: 0 })}
-                    </div>
-                </div>
-                <div className="w-12 h-1 bg-white/10 rounded-full overflow-hidden">
-                    <div 
-                        className={`h-full transition-all duration-700 ${currentWeekPL >= 0 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} 
-                        style={{ width: `${Math.min(100, (Math.abs(currentWeekPL) / 5000) * 100)}%` }}
-                    />
-                </div>
-            </div>
+          <div key={`weekly-${i}`} className="h-28 md:h-40 border-b border-white/5 bg-white/[0.03] flex flex-col items-center justify-center p-2">
+            <span className={`text-[9px] md:text-[10px] font-black ${currentWeekPL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              ${Math.abs(currentWeekPL).toFixed(0)}
+            </span>
           </div>
         );
-        currentWeekPL = 0; // Reset for next week
+        currentWeekPL = 0;
       }
     }
     return cells;
   };
 
-  const footerStats = useMemo(() => {
-    return trades.reduce((acc, t) => {
-      if (t.netPL > 0) acc.grossWins += t.netPL;
-      else if (t.netPL < 0) acc.totalLoss += t.netPL;
-      acc.netFlow += t.netPL;
-      return acc;
-    }, { grossWins: 0, totalLoss: 0, netFlow: 0 });
-  }, [trades]);
-
   return (
-    <div className="flex flex-col h-full p-4 pl-0 gap-4">
-      <header className="px-10 py-6 glass-panel rounded-[32px] flex items-center justify-between animate-fade-in-up">
-        <div className="flex items-center gap-6">
-          <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.15)] group transition-all">
-            <CalendarIcon size={24} className="group-hover:scale-110 transition-transform" />
+    <div className="flex flex-col h-full p-4 lg:pl-0 gap-4 overflow-y-auto lg:overflow-hidden no-scrollbar">
+      <header className="px-6 md:px-10 py-5 glass-panel rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+            <CalendarIcon size={20} />
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-black text-white tracking-tight leading-none uppercase">{monthName}</h1>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1.5">{year} Performance Ledger</span>
-          </div>
-          
-          <div className="flex items-center gap-1 bg-white/5 p-1.5 rounded-2xl border border-white/10 ml-4">
-            <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-400 hover:text-white"><ChevronLeft size={18}/></button>
-            <button onClick={goToToday} className="px-5 py-2 text-[10px] font-black text-slate-300 hover:bg-white/10 rounded-xl transition-all uppercase tracking-widest">Today</button>
-            <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-400 hover:text-white"><ChevronRight size={18}/></button>
+          <h1 className="text-xl font-black text-white uppercase">{monthName} <span className="text-slate-500">{year}</span></h1>
+          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl ml-auto md:ml-4">
+            <button onClick={prevMonth} className="p-2 text-slate-400"><ChevronLeft size={16}/></button>
+            <button onClick={nextMonth} className="p-2 text-slate-400"><ChevronRight size={16}/></button>
           </div>
         </div>
-
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
-            <BarChart size={16} className="text-cyan-400" />
-            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Weekly Recap Enabled</span>
-          </div>
-          <button 
-            onClick={handleExport}
-            className="bg-gradient-to-r from-emerald-400 to-cyan-400 text-black px-8 py-3 rounded-2xl font-black text-sm hover:opacity-90 transition-all glow-cyan flex items-center gap-2 active:scale-95"
-          >
-             <Download size={18} /> Export Data
-          </button>
-        </div>
+        <button className="w-full md:w-auto bg-gradient-to-r from-emerald-400 to-cyan-400 text-black px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest">
+           Export
+        </button>
       </header>
 
-      <div className="flex-1 glass-panel rounded-[32px] overflow-hidden flex flex-col animate-fade-in-up border-white/10">
-        <div className="grid grid-cols-[repeat(7,1fr)_100px] border-b border-white/5 bg-white/[0.02]">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="py-5 text-center border-r border-white/5 last:border-r-0">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{day}</span>
-            </div>
+      <div className="flex-1 glass-panel rounded-[32px] overflow-hidden flex flex-col border-white/10 min-h-[500px]">
+        <div className="grid grid-cols-[repeat(7,1fr)_50px] md:grid-cols-[repeat(7,1fr)_100px] border-b border-white/5 bg-white/[0.02]">
+          {['S','M','T','W','T','F','S'].map(d => (
+            <div key={d} className="py-3 text-center border-r border-white/5 text-[9px] font-black text-slate-500">{d}</div>
           ))}
-          <div className="py-5 text-center bg-white/[0.05]">
-            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">Weekly</span>
-          </div>
+          <div className="py-3 text-center bg-white/[0.05] text-[9px] font-black text-emerald-400">W</div>
         </div>
         <div className="flex-1 overflow-auto no-scrollbar">
-          <div className="grid grid-cols-[repeat(7,1fr)_100px] min-h-full">
+          <div className="grid grid-cols-[repeat(7,1fr)_50px] md:grid-cols-[repeat(7,1fr)_100px]">
             {renderCells()}
           </div>
         </div>
       </div>
 
-      <footer className="px-10 py-5 glass-panel rounded-[32px] flex justify-between items-center border-white/10">
-        <div className="flex gap-12">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Gross P&L</span>
-            <span className="text-xl font-black text-emerald-400">
-              +${footerStats.grossWins.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Loss</span>
-            <span className="text-xl font-black text-rose-400">
-              -${Math.abs(footerStats.totalLoss).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Net Flow</span>
-            <span className={`text-xl font-black ${footerStats.netFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-              {footerStats.netFlow >= 0 ? '+' : '-'}${Math.abs(footerStats.netFlow).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 text-[10px] font-black text-slate-500 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5 uppercase tracking-widest">
-          <Info size={14} className="text-cyan-400"/>
-          Account Telemetry Active
-        </div>
+      <footer className="px-6 py-4 glass-panel rounded-[24px] md:rounded-[32px] flex justify-center items-center border-white/10">
+        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Telemetry Active</span>
       </footer>
     </div>
   );

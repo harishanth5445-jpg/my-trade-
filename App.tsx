@@ -78,9 +78,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    document.body.classList.add('theme-transition');
-    const timer = setTimeout(() => document.body.classList.remove('theme-transition'), 500);
-    return () => clearTimeout(timer);
   }, [theme]);
 
   const handleLogin = () => {
@@ -245,8 +242,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen w-full bg-transparent text-white overflow-hidden selection:bg-cyan-500/30 animate-in fade-in duration-700">
-      <div className="flex-shrink-0">
+    <div className="flex flex-col lg:flex-row h-screen w-full bg-transparent text-white overflow-hidden selection:bg-cyan-500/30 animate-in fade-in duration-700">
+      <div className="flex-shrink-0 relative z-[60]">
         <Sidebar 
           currentView={currentView} 
           onNavigate={setCurrentView} 
@@ -259,7 +256,7 @@ const App: React.FC = () => {
 
       <main 
         key={selectedTrade ? `detail-${selectedTrade.id}` : currentView} 
-        className="flex-1 min-w-0 overflow-hidden z-10 view-transition-enter"
+        className="flex-1 min-w-0 overflow-y-auto lg:overflow-hidden z-10 view-transition-enter mb-20 lg:mb-0"
       >
         {renderContent()}
       </main>
@@ -268,7 +265,7 @@ const App: React.FC = () => {
       <Modal isOpen={isAddAccountOpen} onClose={() => setIsAddAccountOpen(false)} title="Register Environment">
         <form onSubmit={handleAddAccount} className="space-y-6">
           <div className="flex flex-col items-center gap-2 mb-6">
-            <div className="w-16 h-16 bg-cyan-500/10 rounded-3xl flex items-center justify-center text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+            <div className="w-16 h-16 bg-cyan-500/10 rounded-3xl flex items-center justify-center text-cyan-400 border border-cyan-500/20">
               <Wallet size={32} />
             </div>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mt-2">Initialize Trading Profile</p>
@@ -279,7 +276,7 @@ const App: React.FC = () => {
             </label>
             <input name="name" required placeholder="e.g. Apex Master #1" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-600 shadow-inner" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                 <Globe size={12} /> Platform
@@ -320,7 +317,7 @@ const App: React.FC = () => {
             </label>
             <input name="name" required defaultValue={accountToEdit?.name} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all shadow-inner" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                 <Globe size={12} /> Platform
@@ -346,27 +343,10 @@ const App: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Delete Account Confirmation Modal */}
-      <Modal isOpen={!!accountToDeleteId} onClose={() => setAccountToDeleteId(null)} title="Destroy Environment">
-        <div className="flex flex-col items-center text-center gap-8">
-          <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
-            <AlertTriangle size={48} />
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-2xl font-black text-white tracking-tight">Purge Account?</h3>
-            <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-[320px]">This will permanently delete the environment and ALL associated trade data. This process is irreversible.</p>
-          </div>
-          <div className="flex w-full gap-4 pt-4">
-            <button onClick={() => setAccountToDeleteId(null)} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">Abort</button>
-            <button onClick={handleDeleteAccountConfirm} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-white bg-gradient-to-br from-rose-500 to-rose-700 hover:opacity-90 transition-all uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-xl"><Trash2 size={16} /> Destroy</button>
-          </div>
-        </div>
-      </Modal>
-
       {/* New Trade Modal */}
       <Modal isOpen={isNewTradeOpen} onClose={() => { setIsNewTradeOpen(false); setScreenshotPreview(null); }} title="Log Execution">
         <form onSubmit={handleAddTrade} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Asset Class</label>
               <input name="symbol" required placeholder="e.g. MES or NQ" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-600" />
@@ -424,7 +404,7 @@ const App: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Execution Evidence (Screenshot)</label>
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Evidence (Screenshot)</label>
             <div 
               onClick={() => fileInputRef.current?.click()}
               className="w-full h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-emerald-500/30 hover:bg-white/5 transition-all group overflow-hidden relative"
@@ -436,7 +416,7 @@ const App: React.FC = () => {
                     <button 
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setScreenshotPreview(null); }}
-                      className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
+                      className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-400 flex items-center justify-center hover:bg-rose-500 transition-all"
                     >
                       <X size={18} />
                     </button>
@@ -444,10 +424,10 @@ const App: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 group-hover:text-emerald-400 transition-all">
                     <Camera size={20} />
                   </div>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-300">Click to upload snapshot</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Click to upload snapshot</span>
                 </>
               )}
             </div>
@@ -466,7 +446,24 @@ const App: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Trade Deletion Modal */}
+      {/* Simple Modals for Delete Confirmations */}
+      {/* (Skipped for brevity as they are already good, but could be adjusted if needed) */}
+      <Modal isOpen={!!accountToDeleteId} onClose={() => setAccountToDeleteId(null)} title="Destroy Environment">
+        <div className="flex flex-col items-center text-center gap-8">
+          <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+            <AlertTriangle size={48} />
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-2xl font-black text-white tracking-tight">Purge Account?</h3>
+            <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-[320px]">This will permanently delete the environment and ALL associated trade data. This process is irreversible.</p>
+          </div>
+          <div className="flex w-full gap-4 pt-4">
+            <button onClick={() => setAccountToDeleteId(null)} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">Abort</button>
+            <button onClick={handleDeleteAccountConfirm} className="flex-1 px-8 py-5 rounded-2xl font-black text-xs text-white bg-gradient-to-br from-rose-500 to-rose-700 hover:opacity-90 transition-all uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-xl"><Trash2 size={16} /> Destroy</button>
+          </div>
+        </div>
+      </Modal>
+
       <Modal isOpen={!!deleteConfirmId} onClose={() => setDeleteConfirmId(null)} title="Destructive Action">
         <div className="flex flex-col items-center text-center gap-8">
           <div className="w-24 h-24 rounded-[32px] bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
