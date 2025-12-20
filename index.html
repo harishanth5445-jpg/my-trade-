@@ -57,6 +57,21 @@
             to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
         }
 
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        }
+
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 4px rgba(255, 255, 255, 0.1); }
+            50% { text-shadow: 0 0 12px rgba(16, 185, 129, 0.6); color: #34d399; }
+        }
+
         @keyframes slideInRight {
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
@@ -78,6 +93,18 @@
         .animate-fade-in-up {
             animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-glow {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        .animate-text-glow {
+            animation: textGlow 3s ease-in-out infinite;
         }
 
         .mesh-gradient {

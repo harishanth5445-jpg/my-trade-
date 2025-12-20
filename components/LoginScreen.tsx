@@ -54,7 +54,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           {/* Logo & Header */}
           <div className="flex flex-col items-center gap-6">
             <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-emerald-500 rounded-3xl flex items-center justify-center text-black font-black text-4xl shadow-2xl shadow-emerald-500/20 animate-fade-in-up">
-              <span>Z</span>
+              <div className="relative flex items-center justify-center">
+                <span className="relative z-10">T</span>
+                <span className="absolute z-0 opacity-40 translate-x-[4px] translate-y-[2px]">N</span>
+              </div>
             </div>
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-black text-white tracking-tighter uppercase">TradeNexus</h1>

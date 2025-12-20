@@ -28,7 +28,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, selectedAcco
       <aside className="hidden lg:flex w-[84px] glass-panel border-r-0 m-4 rounded-[32px] flex-col items-center py-8 gap-10 flex-shrink-0 z-[60] overflow-hidden relative group/sidebar h-[calc(100vh-32px)]">
         <div className="relative flex flex-col items-center">
           <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-emerald-500 rounded-2xl flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform cursor-pointer relative z-10">
-            <span>Z</span>
+            <div className="relative flex items-center justify-center">
+              <span className="relative z-10">T</span>
+              <span className="absolute z-0 opacity-40 translate-x-[3px] translate-y-[1px]">N</span>
+            </div>
           </div>
           <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full scale-150 -z-0 opacity-50"></div>
         </div>

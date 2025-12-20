@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Filter as FilterIcon, ChevronDown, Plus, Search, Trash2, Wallet, X, Zap, Activity, BellRing, Target, BarChart2, Hash, ArrowUpRight, ArrowDownRight, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
+import { Filter as FilterIcon, ChevronDown, Plus, Search, Trash2, Wallet, X, Zap, Activity, BellRing, Target, BarChart2, Hash, ArrowUpRight, ArrowDownRight, Calendar as CalendarIcon, ArrowRight, Pencil } from 'lucide-react';
 import { Trade, Status, Side } from '../types';
 import { Account } from '../App';
 import { SETUPS, INSTRUMENTS } from '../constants';
@@ -73,10 +73,33 @@ const AnimatedValue: React.FC<{
   decimals?: number;
   className?: string;
 }> = ({ value, prefix = '', suffix = '', decimals = 2, className = '' }) => {
-  const [displayValue, setDisplayValue] = useState(value);
+  const [displayValue, setDisplayValue] = useState(0);
+  const frameRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+  const startValueRef = useRef<number>(0);
+  const duration = 1200; // Animation duration in ms
 
   useEffect(() => {
-    setDisplayValue(value);
+    startValueRef.current = displayValue;
+    startTimeRef.current = performance.now();
+
+    const animate = (now: number) => {
+      const elapsed = now - startTimeRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function: easeOutExpo
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      const nextValue = startValueRef.current + (value - startValueRef.current) * easeProgress;
+      setDisplayValue(nextValue);
+
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    frameRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameRef.current);
   }, [value]);
 
   const formatted = Math.abs(displayValue).toLocaleString(undefined, {
@@ -119,7 +142,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, icon, value, opt
     <div className="relative" ref={containerRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-[9px] font-black uppercase tracking-widest ${
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest ${
           value !== allLabel 
           ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
           : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/10'
@@ -171,6 +194,8 @@ const TradeLog: React.FC<TradeLogProps> = ({
   accounts, 
   onAccountChange,
   onAddAccount,
+  onEditAccount,
+  onDeleteAccount
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | 'ALL'>('ALL');
@@ -262,26 +287,42 @@ const TradeLog: React.FC<TradeLogProps> = ({
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-[15px] md:text-[17px] font-black text-white uppercase tracking-tight leading-none">{currentAccount.name}</h2>
+                  <h2 className="text-[15px] md:text-[17px] font-black text-white uppercase tracking-tight leading-none animate-text-glow">{currentAccount.name}</h2>
                   <ChevronDown size={14} className={`text-slate-500 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
                 </div>
                 <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{currentAccount.type}</span>
               </div>
             </button>
             {isAccountMenuOpen && (
-              <div className="absolute top-full left-0 mt-3 w-64 md:w-72 glass-panel rounded-[24px] p-2 border border-white/10 shadow-2xl z-50 overflow-hidden">
+              <div className="absolute top-full left-0 mt-3 w-64 md:w-80 glass-panel rounded-[24px] p-2 border border-white/10 shadow-2xl z-50 overflow-hidden">
                 <div className="max-h-64 overflow-y-auto no-scrollbar space-y-1 p-1">
                   {accounts.map((acc) => (
-                    <button 
+                    <div 
                       key={acc.id}
-                      onClick={() => { onAccountChange(acc); setIsAccountMenuOpen(false); }} 
-                      className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between ${currentAccount.id === acc.id ? 'bg-emerald-500/10' : 'hover:bg-white/5'}`}
+                      className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between group/item ${currentAccount.id === acc.id ? 'bg-emerald-500/10' : 'hover:bg-white/5'}`}
                     >
-                      <div className="flex flex-col">
+                      <button 
+                        onClick={() => { onAccountChange(acc); setIsAccountMenuOpen(false); }} 
+                        className="flex-1 text-left flex flex-col"
+                      >
                         <span className={`text-[12px] font-black ${currentAccount.id === acc.id ? 'text-emerald-400' : 'text-white'}`}>{acc.name}</span>
                         <span className="text-[8px] font-bold text-slate-500 uppercase">{acc.provider}</span>
+                      </button>
+                      <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onEditAccount(acc); setIsAccountMenuOpen(false); }}
+                          className="p-2 text-slate-500 hover:text-cyan-400 hover:bg-white/10 rounded-lg transition-all"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onDeleteAccount(acc.id); setIsAccountMenuOpen(false); }}
+                          className="p-2 text-slate-500 hover:text-rose-400 hover:bg-white/10 rounded-lg transition-all"
+                        >
+                          <Trash2 size={12} />
+                        </button>
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
                 <div className="p-2 border-t border-white/5 bg-white/[0.02]">
@@ -313,7 +354,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
       </header>
 
       {/* Advanced Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 px-2">
+      <div className="flex flex-wrap items-center gap-2 px-2 animate-fade-in-up stagger-1">
         <div className="flex items-center gap-1.5 text-slate-600 mr-2">
           <FilterIcon size={12} />
           <span className="text-[8px] font-black uppercase tracking-widest">Filters</span>
@@ -323,7 +364,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
         <div className="relative" ref={dateRangeRef}>
           <button 
             onClick={() => setIsDateRangeOpen(!isDateRangeOpen)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-[9px] font-black uppercase tracking-widest ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest ${
               (startDate || endDate) 
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
               : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/10'
@@ -422,7 +463,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
         {hasActiveFilters && (
           <button 
             onClick={clearAllFilters}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all text-[8px] font-black uppercase tracking-widest"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all active:scale-95 text-[8px] font-black uppercase tracking-widest"
           >
             <X size={10} /> Reset
           </button>
@@ -431,10 +472,24 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Portfolio Net" numericValue={stats.netPL} trend={stats.netPL >= 0 ? 1 : -1} prefix="$" isPositive={stats.netPL >= 0} />
-        <StatCard title="Win Accuracy" numericValue={stats.winRate} trend={stats.winRate > 50 ? 1 : -1} suffix="%" decimals={1} />
-        <StatCard title="Profit Factor" numericValue={stats.profitFactor} trend={stats.profitFactor > 1.5 ? 1 : -1} decimals={2} />
-        <StatCard title="Efficiency" numericValue={stats.efficiency} trend={stats.efficiency > 70 ? 1 : -1} suffix="%" decimals={0} />
+        {[
+          { title: "Portfolio Net", val: stats.netPL, trend: stats.netPL >= 0 ? 1 : -1, prefix: "$", isPositive: stats.netPL >= 0 },
+          { title: "Win Accuracy", val: stats.winRate, trend: stats.winRate > 50 ? 1 : -1, suffix: "%", decimals: 1 },
+          { title: "Profit Factor", val: stats.profitFactor, trend: stats.profitFactor > 1.5 ? 1 : -1, decimals: 2 },
+          { title: "Efficiency", val: stats.efficiency, trend: stats.efficiency > 70 ? 1 : -1, suffix: "%", decimals: 0 }
+        ].map((s, idx) => (
+          <StatCard 
+            key={s.title} 
+            title={s.title} 
+            numericValue={s.val} 
+            trend={s.trend} 
+            prefix={s.prefix} 
+            suffix={s.suffix} 
+            decimals={s.decimals} 
+            isPositive={s.isPositive}
+            delay={idx * 100}
+          />
+        ))}
       </div>
 
       {/* Execution Ledger Table */}
@@ -454,8 +509,13 @@ const TradeLog: React.FC<TradeLogProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filteredTrades.map((trade) => (
-                <tr key={trade.id} onClick={() => onTradeClick(trade)} className="cursor-pointer transition-all hover:bg-white/[0.04] group">
+              {filteredTrades.map((trade, idx) => (
+                <tr 
+                  key={trade.id} 
+                  onClick={() => onTradeClick(trade)} 
+                  className="cursor-pointer transition-all hover:bg-white/[0.04] group animate-fade-in-up"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
                   <td className="px-6 md:px-10 py-5">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[12px] font-black text-white">{trade.date}</span>
@@ -464,7 +524,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
                   </td>
                   <td className="px-6 md:px-10 py-5">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-emerald-400 transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-emerald-400 group-hover:animate-glow transition-all">
                         <BarChart2 size={14} />
                       </div>
                       <span className="text-sm md:text-base font-black text-white">{trade.symbol}</span>
@@ -500,7 +560,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
             </tbody>
           </table>
           {filteredTrades.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-32 gap-6 opacity-30 w-full">
+            <div className="flex flex-col items-center justify-center py-32 gap-6 opacity-30 w-full animate-float">
               <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-slate-500">
                 <BarChart2 size={32} />
               </div>
@@ -524,11 +584,15 @@ const StatCard: React.FC<{
   suffix?: string; 
   decimals?: number;
   isPositive?: boolean;
-}> = ({ title, numericValue, trend, prefix = '', suffix = '', decimals = 2, isPositive = true }) => (
-  <div className="glass-panel p-4 md:p-6 rounded-[32px] flex flex-col gap-1 md:gap-2 group hover:bg-white/[0.04] transition-all border-white/5 overflow-hidden relative">
+  delay?: number;
+}> = ({ title, numericValue, trend, prefix = '', suffix = '', decimals = 2, isPositive = true, delay = 0 }) => (
+  <div 
+    className="glass-panel p-4 md:p-6 rounded-[32px] flex flex-col gap-1 md:gap-2 group hover:bg-white/[0.04] transition-all border-white/5 overflow-hidden relative animate-fade-in-up"
+    style={{ animationDelay: `${delay}ms` }}
+  >
     <div className="flex items-center justify-between mb-1">
       <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">{title}</span>
-      <div className={`w-2 h-2 rounded-full ${trend > 0 ? 'bg-emerald-500' : 'bg-rose-500'} blur-[4px]`}></div>
+      <div className={`w-2 h-2 rounded-full ${trend > 0 ? 'bg-emerald-500 animate-glow' : 'bg-rose-500'} blur-[4px]`}></div>
     </div>
     <div className="flex items-end justify-between z-10">
       <AnimatedValue value={numericValue} prefix={prefix} suffix={suffix} decimals={decimals} className={`text-base md:text-2xl font-black ${title.includes('Portfolio') ? (isPositive ? 'text-emerald-400' : 'text-rose-400') : 'text-white'}`} />
