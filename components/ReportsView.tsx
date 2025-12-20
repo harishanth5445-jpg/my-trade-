@@ -1,32 +1,53 @@
 
-import React, { useMemo } from 'react';
-import { BarChart3, TrendingUp, Target, Activity, Zap, Calendar as CalendarIcon, Filter, Brain, CheckSquare, ShieldCheck, Timer, AlertCircle, BarChart as BarChartIcon, LayoutGrid, Clock } from 'lucide-react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList, ReferenceLine } from 'recharts';
+import React, { useMemo, useState } from 'react';
+import { BarChart3, TrendingUp, Target, Activity, Zap, Calendar as CalendarIcon, Filter, Brain, CheckSquare, ShieldCheck, Timer, AlertCircle, BarChart as BarChartIcon, Clock, ChevronDown, Download } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine } from 'recharts';
 import { Trade } from '../types';
+import { exportTradesToCSV } from '../exportUtils';
 
 interface ReportsViewProps {
   trades: Trade[];
 }
 
+type Timeframe = 'ALL' | '7D' | '30D' | '90D';
+
 const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
+  const [timeframe, setTimeframe] = useState<Timeframe>('ALL');
+  const [isTimeframeOpen, setIsTimeframeOpen] = useState(false);
+
+  const filteredTrades = useMemo(() => {
+    if (timeframe === 'ALL') return trades;
+    
+    const now = new Date();
+    const limit = new Date();
+    if (timeframe === '7D') limit.setDate(now.getDate() - 7);
+    else if (timeframe === '30D') limit.setDate(now.getDate() - 30);
+    else if (timeframe === '90D') limit.setDate(now.getDate() - 90);
+    
+    return trades.filter(t => {
+      const tradeDate = new Date(t.date);
+      return tradeDate >= limit;
+    });
+  }, [trades, timeframe]);
+
   const stats = useMemo(() => {
-    const total = trades.length;
-    const wins = trades.filter(t => t.status === 'WIN').length;
-    const losses = trades.filter(t => t.status === 'LOSS').length;
-    const netPL = trades.reduce((acc, t) => acc + t.netPL, 0);
+    const total = filteredTrades.length;
+    const wins = filteredTrades.filter(t => t.status === 'WIN').length;
+    const losses = filteredTrades.filter(t => t.status === 'LOSS').length;
+    const netPL = filteredTrades.reduce((acc, t) => acc + t.netPL, 0);
     const winRate = total > 0 ? (wins / total) * 100 : 0;
-    const grossWins = trades.filter(t => t.netPL > 0).reduce((acc, t) => acc + t.netPL, 0);
-    const grossLosses = Math.abs(trades.filter(t => t.netPL < 0).reduce((acc, t) => acc + t.netPL, 0));
+    const grossWins = filteredTrades.filter(t => t.netPL > 0).reduce((acc, t) => acc + t.netPL, 0);
+    const grossLosses = Math.abs(filteredTrades.filter(t => t.netPL < 0).reduce((acc, t) => acc + t.netPL, 0));
     const profitFactor = grossLosses > 0 ? grossWins / grossLosses : grossWins;
     const avgWin = wins > 0 ? grossWins / wins : 0;
     const avgLoss = losses > 0 ? grossLosses / losses : 0;
     return { total, wins, losses, netPL, winRate, profitFactor, avgWin, avgLoss };
-  }, [trades]);
+  }, [filteredTrades]);
 
-  const { equityData, drawdownData } = useMemo(() => {
+  const { equityData } = useMemo(() => {
     let runningPL = 0;
     let peak = 0;
-    const reversedTrades = [...trades].reverse();
+    const reversedTrades = [...filteredTrades].reverse();
     
     const equity = reversedTrades.map((t, i) => {
       runningPL += t.netPL;
@@ -41,24 +62,36 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
       };
     });
 
-    return { equityData: equity, drawdownData: equity };
-  }, [trades]);
+    return { equityData: equity };
+  }, [filteredTrades]);
 
   const dayOfWeekData = useMemo(() => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const map: Record<string, number> = {};
-    trades.forEach(t => {
+    filteredTrades.forEach(t => {
       const day = days[new Date(t.date).getDay()];
       map[day] = (map[day] || 0) + t.netPL;
     });
     return days.map(day => ({ name: day.substring(0, 3), pl: Math.round(map[day] || 0) }));
-  }, [trades]);
+  }, [filteredTrades]);
 
   const pieData = [
     { name: 'Profit', value: stats.wins, color: '#10b981' },
     { name: 'Loss', value: stats.losses, color: '#f43f5e' },
-    { name: 'BE', value: trades.filter(t => t.status === 'BE').length, color: '#64748b' },
+    { name: 'BE', value: filteredTrades.filter(t => t.status === 'BE').length, color: '#64748b' },
   ];
+
+  const handleAuditExport = () => {
+    const filename = `Nexus_Audit_Report_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
+    exportTradesToCSV(filteredTrades, filename);
+  };
+
+  const timeframeLabels = {
+    'ALL': 'All History',
+    '7D': 'Last 7 Days',
+    '30D': 'Last 30 Days',
+    '90D': 'Last 90 Days'
+  };
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -89,7 +122,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
 
   return (
     <div className="flex flex-col h-full p-4 pl-0 gap-4 overflow-hidden">
-      <header className="px-10 py-6 glass-panel rounded-[32px] flex items-center justify-between border-white/10">
+      <header className="px-10 py-6 glass-panel rounded-[32px] flex items-center justify-between border-white/10 relative z-50">
         <div className="flex items-center gap-6">
           <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] group transition-all">
             <BarChart3 size={24} className="group-hover:scale-110 transition-transform" />
@@ -111,11 +144,38 @@ const ReportsView: React.FC<ReportsViewProps> = ({ trades }) => {
               <span className="text-xs font-black text-rose-400">${Math.round(stats.avgLoss)}</span>
             </div>
           </div>
-          <button className="flex items-center gap-2 text-[9px] font-black text-slate-300 bg-white/5 px-5 py-2.5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">
-             <CalendarIcon size={14} className="text-emerald-400" /> Rolling 30D
-          </button>
-          <button className="bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 px-7 py-2.5 rounded-2xl font-black text-xs hover:bg-emerald-400/20 transition-all flex items-center gap-2 active:scale-95 uppercase tracking-widest">
-             <Filter size={16} /> Advanced Audit
+
+          <div className="relative">
+            <button 
+              onClick={() => setIsTimeframeOpen(!isTimeframeOpen)}
+              className="flex items-center gap-2 text-[9px] font-black text-slate-300 bg-white/5 px-5 py-2.5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest min-w-[140px] justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <CalendarIcon size={14} className="text-emerald-400" /> 
+                {timeframeLabels[timeframe]}
+              </div>
+              <ChevronDown size={14} className={`transition-transform duration-300 ${isTimeframeOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isTimeframeOpen && (
+              <div className="absolute top-full right-0 mt-2 w-48 glass-panel rounded-2xl border border-white/10 shadow-2xl z-50 p-1 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                {(['ALL', '7D', '30D', '90D'] as Timeframe[]).map(tf => (
+                  <button 
+                    key={tf}
+                    onClick={() => { setTimeframe(tf); setIsTimeframeOpen(false); }}
+                    className={`w-full text-left px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${timeframe === tf ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                  >
+                    {timeframeLabels[tf]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button 
+            onClick={handleAuditExport}
+            className="bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 px-7 py-2.5 rounded-2xl font-black text-xs hover:bg-emerald-400/20 transition-all flex items-center gap-2 active:scale-95 uppercase tracking-widest"
+          >
+             <Download size={16} /> Advanced Audit
           </button>
         </div>
       </header>
