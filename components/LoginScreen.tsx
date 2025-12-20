@@ -12,15 +12,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statusText, setStatusText] = useState('Standby');
+  const [isUnlocked, setIsUnlocked] = useState(false);
 
   const DEMO_PASSWORD = '5445';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === DEMO_PASSWORD) {
+      setIsUnlocked(true); // Triggers visual flash
       setIsLoading(true);
       setError(false);
-      setStatusText('Validating Credentials...');
+      setStatusText('Decryption Successful');
       
       // Artificial delay for cinematic effect
       setTimeout(() => {
@@ -35,31 +37,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     } else {
       setError(true);
       setPassword('');
-      // Shake effect logic is handled via CSS
       setTimeout(() => setError(false), 500);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#050505] overflow-hidden font-sans">
+    <div className={`fixed inset-0 z-[1000] flex items-center justify-center bg-[#050505] overflow-hidden font-sans transition-all duration-700 ${isUnlocked ? 'bg-[#0a0a0b]' : ''}`}>
+      
+      {/* Visual Unlock Flash */}
+      <div className={`absolute inset-0 z-[1001] bg-white pointer-events-none transition-opacity duration-1000 ${isUnlocked ? 'opacity-0' : 'opacity-0'}`} style={{ animation: isUnlocked ? 'flash 0.8s ease-out' : 'none' }}></div>
+
       {/* Cinematic Theme-Aligned Mesh Background */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 blur-[150px] rounded-full animate-pulse opacity-50"></div>
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] blur-[150px] rounded-full animate-pulse opacity-50 transition-colors duration-1000 ${isUnlocked ? 'bg-emerald-500/20' : 'bg-cyan-500/10'}`}></div>
         <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full animate-pulse [animation-delay:2s] opacity-30"></div>
         {/* Ambient Grid Lines */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
-      <div className={`relative z-10 w-full max-w-md transition-all duration-1000 ${isLoading ? 'scale-90 opacity-0 blur-2xl' : 'scale-100 opacity-100 blur-0'}`}>
-        <div className={`glass-panel rounded-[48px] p-12 border-white/5 flex flex-col items-center gap-10 shadow-[0_64px_128px_-32px_rgba(0,0,0,1)] ${error ? 'animate-shake' : ''}`}>
+      <div className={`relative z-10 w-full max-w-md transition-all duration-1000 ${isLoading && !isUnlocked ? 'scale-90 opacity-0 blur-2xl' : 'scale-100 opacity-100 blur-0'}`}>
+        <div className={`glass-panel rounded-[48px] p-12 border-white/5 flex flex-col items-center gap-10 shadow-[0_64px_128px_-32px_rgba(0,0,0,1)] ${error ? 'animate-shake' : ''} ${isUnlocked ? 'border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.1)]' : ''}`}>
           
           {/* Advanced TN Prismatic Monogram Logo - THEME ALIGNED */}
           <div className="flex flex-col items-center gap-8">
             <div className="relative group">
               {/* Massive Volumetric Theme Glow */}
-              <div className="absolute inset-[-40px] bg-emerald-500/10 blur-[60px] rounded-full animate-pulse opacity-60"></div>
+              <div className={`absolute inset-[-40px] blur-[60px] rounded-full animate-pulse opacity-60 transition-colors duration-1000 ${isUnlocked ? 'bg-emerald-500/20' : 'bg-emerald-500/10'}`}></div>
               
-              <div className="w-28 h-28 bg-[#0a0a0b] border border-white/10 rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,1)] relative overflow-hidden ring-1 ring-white/5 transition-all duration-700 group-hover:border-emerald-500/40">
+              <div className={`w-28 h-28 bg-[#0a0a0b] border border-white/10 rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,1)] relative overflow-hidden ring-1 ring-white/5 transition-all duration-700 group-hover:border-emerald-500/40 ${isUnlocked ? 'border-emerald-400' : ''}`}>
                 {/* Internal Ambient Light */}
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10"></div>
                 
@@ -119,13 +124,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••"
-                  className={`w-full bg-white/[0.02] border rounded-2xl px-6 py-5 text-lg tracking-widest font-black text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-800 ${error ? 'border-rose-500/50' : 'border-white/10 group-hover:border-white/20'}`}
+                  className={`w-full bg-white/[0.02] border rounded-2xl px-6 py-5 text-lg tracking-widest font-black text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-800 ${error ? 'border-rose-500/50' : 'border-white/10 group-hover:border-white/20'} ${isUnlocked ? 'border-emerald-500/50 text-emerald-400' : ''}`}
+                  disabled={isLoading}
                   autoFocus
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -135,7 +142,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
             <button 
               disabled={!password || isLoading}
-              className="w-full bg-gradient-to-r from-emerald-400 to-cyan-500 text-black py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-20 disabled:grayscale flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(16,185,129,0.2)]"
+              className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-20 disabled:grayscale flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(16,185,129,0.2)] ${isUnlocked ? 'bg-white text-emerald-600' : 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-black hover:opacity-90'}`}
             >
               {isLoading ? (
                 <>
@@ -163,6 +170,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       </div>
 
       <style>{`
+        @keyframes flash {
+          0% { opacity: 0; }
+          10% { opacity: 0.8; }
+          100% { opacity: 0; }
+        }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(-10px); }
