@@ -60,7 +60,7 @@ const LiveClock: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col items-end px-4 border-l border-white/10">
+    <div className="flex flex-col items-end px-5 border-l border-white/10">
       <div className="flex items-center gap-1.5">
         <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px] animate-pulse transition-colors duration-1000 ${
           closed ? 'bg-rose-500 shadow-rose-500/80' : 'bg-emerald-400 shadow-emerald-400/80'
@@ -207,30 +207,30 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
   return (
     <div className="flex flex-col h-full p-4 pl-0">
-      <header className="px-6 py-4 glass-panel rounded-[28px] mb-4 flex items-center justify-between relative z-50 animate-fade-in-up">
-        <div className="flex items-center gap-4">
+      <header className="px-8 py-5 glass-panel rounded-[32px] mb-5 flex items-center justify-between relative z-50 animate-fade-in-up border-white/5">
+        <div className="flex items-center gap-5">
           <div className="relative">
-            <button onClick={() => { closeAllMenus(); setIsAccountMenuOpen(!isAccountMenuOpen); }} className="flex items-center gap-3 group text-left transition-all rounded-2xl active:scale-95">
-              <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 transition-all shadow-[0_0_12px_rgba(16,185,129,0.1)]">
-                <Wallet size={18} className="group-hover:scale-110 transition-transform" />
+            <button onClick={() => { closeAllMenus(); setIsAccountMenuOpen(!isAccountMenuOpen); }} className="flex items-center gap-3.5 group text-left transition-all rounded-2xl active:scale-95">
+              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 transition-all shadow-[0_0_12px_rgba(16,185,129,0.1)]">
+                <Wallet size={20} className="group-hover:scale-110 transition-transform" />
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-1.5">
-                  <h2 className="text-base font-black text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight leading-none">{currentAccount.name}</h2>
-                  <ChevronDown size={12} className={`text-slate-500 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
+                <div className="flex items-center gap-2">
+                  <h2 className="text-[17px] font-black text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight leading-none">{currentAccount.name}</h2>
+                  <ChevronDown size={14} className={`text-slate-500 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{currentAccount.type}</span>
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{currentAccount.type}</span>
                 </div>
               </div>
             </button>
             {isAccountMenuOpen && (
-              <div className="absolute top-full left-0 mt-3 w-64 glass-panel rounded-[24px] p-1.5 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-3xl z-50">
+              <div className="absolute top-full left-0 mt-3 w-64 glass-panel rounded-[24px] p-2 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-3xl z-50">
                 <div className="max-h-56 overflow-y-auto no-scrollbar space-y-1">
                   {accounts.map((acc) => (
-                    <button key={acc.id} onClick={() => { onAccountChange(acc); setIsAccountMenuOpen(false); }} className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between group ${currentAccount.id === acc.id ? 'bg-emerald-500/10 border border-emerald-500/20' : 'hover:bg-white/5 border border-transparent'}`}>
+                    <button key={acc.id} onClick={() => { onAccountChange(acc); setIsAccountMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between group ${currentAccount.id === acc.id ? 'bg-emerald-500/10 border border-emerald-500/20' : 'hover:bg-white/5 border border-transparent'}`}>
                       <div className="flex flex-col">
-                        <span className={`text-[11px] font-black ${currentAccount.id === acc.id ? 'text-emerald-400' : 'text-white'}`}>{acc.name}</span>
+                        <span className={`text-[12px] font-black ${currentAccount.id === acc.id ? 'text-emerald-400' : 'text-white'}`}>{acc.name}</span>
                         <span className="text-[8px] font-bold text-slate-500 uppercase">{acc.provider}</span>
                       </div>
                       {currentAccount.id === acc.id && <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></div>}
@@ -241,18 +241,18 @@ const TradeLog: React.FC<TradeLogProps> = ({
             )}
           </div>
           
-          <div className="h-6 w-[1px] bg-white/10 mx-0.5" />
+          <div className="h-8 w-[1px] bg-white/10 mx-1" />
           
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {/* Status Button (Ultra Compact) */}
             <div className="relative">
-              <button onClick={() => { closeAllMenus(); setIsFilterMenuOpen(!isFilterMenuOpen); }} className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-all ${statusFilter !== 'ALL' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                <FilterIcon size={10} /> {statusFilter === 'ALL' ? 'Status' : statusFilter}
+              <button onClick={() => { closeAllMenus(); setIsFilterMenuOpen(!isFilterMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${statusFilter !== 'ALL' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                <FilterIcon size={11} /> {statusFilter === 'ALL' ? 'Status' : statusFilter}
               </button>
               {isFilterMenuOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-36 glass-panel rounded-lg p-1 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50">
+                <div className="absolute top-full left-0 mt-2 w-36 glass-panel rounded-xl p-1.5 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50">
                   {['ALL', 'WIN', 'LOSS', 'BE'].map(status => (
-                    <button key={status} onClick={() => { setStatusFilter(status as any); setIsFilterMenuOpen(false); }} className={`w-full text-left px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${statusFilter === status ? 'text-emerald-400' : 'text-slate-400'}`}>
+                    <button key={status} onClick={() => { setStatusFilter(status as any); setIsFilterMenuOpen(false); }} className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${statusFilter === status ? 'text-emerald-400' : 'text-slate-400'}`}>
                       {status === 'ALL' ? 'All' : status}
                     </button>
                   ))}
@@ -262,16 +262,16 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
             {/* Strategy Button (Ultra Compact) */}
             <div className="relative">
-              <button onClick={() => { closeAllMenus(); setIsStrategyMenuOpen(!isStrategyMenuOpen); }} className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-all ${strategyFilter !== 'ALL' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                <Zap size={10} /> {strategyFilter === 'ALL' ? 'Strategy' : strategyFilter}
+              <button onClick={() => { closeAllMenus(); setIsStrategyMenuOpen(!isStrategyMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${strategyFilter !== 'ALL' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                <Zap size={11} /> {strategyFilter === 'ALL' ? 'Strategy' : strategyFilter}
               </button>
               {isStrategyMenuOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-44 glass-panel rounded-lg p-1 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50">
-                  <button onClick={() => { setStrategyFilter('ALL'); setIsStrategyMenuOpen(false); }} className={`w-full text-left px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${strategyFilter === 'ALL' ? 'text-cyan-400' : 'text-slate-400'}`}>
+                <div className="absolute top-full left-0 mt-2 w-44 glass-panel rounded-xl p-1.5 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50">
+                  <button onClick={() => { setStrategyFilter('ALL'); setIsStrategyMenuOpen(false); }} className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${strategyFilter === 'ALL' ? 'text-cyan-400' : 'text-slate-400'}`}>
                     All Strategies
                   </button>
                   {strategies.map(strat => (
-                    <button key={strat} onClick={() => { setStrategyFilter(strat); setIsStrategyMenuOpen(false); }} className={`w-full text-left px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${strategyFilter === strat ? 'text-cyan-400' : 'text-slate-400'}`}>
+                    <button key={strat} onClick={() => { setStrategyFilter(strat); setIsStrategyMenuOpen(false); }} className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${strategyFilter === strat ? 'text-cyan-400' : 'text-slate-400'}`}>
                       {strat}
                     </button>
                   ))}
@@ -281,13 +281,13 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
             {/* Side Button (Ultra Compact) */}
             <div className="relative">
-              <button onClick={() => { closeAllMenus(); setIsSideMenuOpen(!isSideMenuOpen); }} className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-all ${sideFilter !== 'ALL' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                <Activity size={10} /> {sideFilter === 'ALL' ? 'Side' : sideFilter}
+              <button onClick={() => { closeAllMenus(); setIsSideMenuOpen(!isSideMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${sideFilter !== 'ALL' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                <Activity size={11} /> {sideFilter === 'ALL' ? 'Side' : sideFilter}
               </button>
               {isSideMenuOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-36 glass-panel rounded-lg p-1 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50">
+                <div className="absolute top-full left-0 mt-2 w-36 glass-panel rounded-xl p-1.5 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50">
                   {['ALL', 'LONG', 'SHORT'].map(side => (
-                    <button key={side} onClick={() => { setSideFilter(side); setIsSideMenuOpen(false); }} className={`w-full text-left px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${sideFilter === side ? 'text-indigo-400' : 'text-slate-400'}`}>
+                    <button key={side} onClick={() => { setSideFilter(side); setIsSideMenuOpen(false); }} className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${sideFilter === side ? 'text-indigo-400' : 'text-slate-400'}`}>
                       {side === 'ALL' ? 'All Sides' : side}
                     </button>
                   ))}
@@ -297,16 +297,16 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
             {/* Month Button (Ultra Compact) */}
             <div className="relative">
-              <button onClick={() => { closeAllMenus(); setIsMonthMenuOpen(!isMonthMenuOpen); }} className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-all ${monthFilter !== 'ALL' ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                <Calendar size={10} /> {monthFilter === 'ALL' ? 'Month' : months[monthFilter as number].substring(0, 3)}
+              <button onClick={() => { closeAllMenus(); setIsMonthMenuOpen(!isMonthMenuOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${monthFilter !== 'ALL' ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                <Calendar size={11} /> {monthFilter === 'ALL' ? 'Month' : months[monthFilter as number].substring(0, 3)}
               </button>
               {isMonthMenuOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-40 glass-panel rounded-lg p-1 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50 max-h-52 overflow-y-auto no-scrollbar">
-                  <button onClick={() => { setMonthFilter('ALL'); setIsMonthMenuOpen(false); }} className={`w-full text-left px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${monthFilter === 'ALL' ? 'text-cyan-400' : 'text-slate-400'}`}>
+                <div className="absolute top-full left-0 mt-2 w-40 glass-panel rounded-xl p-1.5 border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl z-50 max-h-52 overflow-y-auto no-scrollbar">
+                  <button onClick={() => { setMonthFilter('ALL'); setIsMonthMenuOpen(false); }} className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${monthFilter === 'ALL' ? 'text-cyan-400' : 'text-slate-400'}`}>
                     History
                   </button>
                   {months.map((month, idx) => (
-                    <button key={month} onClick={() => { setMonthFilter(idx); setIsMonthMenuOpen(false); }} className={`w-full text-left px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${monthFilter === idx ? 'text-cyan-400' : 'text-slate-400'}`}>
+                    <button key={month} onClick={() => { setMonthFilter(idx); setIsMonthMenuOpen(false); }} className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all ${monthFilter === idx ? 'text-cyan-400' : 'text-slate-400'}`}>
                       {month}
                     </button>
                   ))}
@@ -316,23 +316,23 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
             {/* Range Button (Ultra Compact) */}
             <div className="relative">
-              <button onClick={() => { closeAllMenus(); setIsRangeOpen(!isRangeOpen); }} className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-all ${startDate || endDate ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                <div className="w-1 h-1 rounded-full bg-emerald-400"></div> Range
+              <button onClick={() => { closeAllMenus(); setIsRangeOpen(!isRangeOpen); }} className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border transition-all ${startDate || endDate ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-slate-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div> Range
               </button>
               {isRangeOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-56 glass-panel rounded-[20px] p-4 border border-white/10 shadow-2xl animate-in fade-in duration-200 backdrop-blur-3xl z-50">
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <label className="text-[7px] font-black text-slate-500 uppercase tracking-widest">Start</label>
-                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-[9px] text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]" />
+                <div className="absolute top-full left-0 mt-2 w-56 glass-panel rounded-[24px] p-5 border border-white/10 shadow-2xl animate-in fade-in duration-200 backdrop-blur-3xl z-50">
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Start</label>
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]" />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[7px] font-black text-slate-500 uppercase tracking-widest">End</label>
-                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-[9px] text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]" />
+                    <div className="space-y-1.5">
+                      <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">End</label>
+                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]" />
                     </div>
-                    <div className="flex gap-1.5 pt-1">
-                      <button onClick={resetDateRange} className="flex-1 px-2 py-1.5 rounded-lg text-[7px] font-black text-slate-400 uppercase tracking-widest hover:bg-white/5 border border-transparent">Clear</button>
-                      <button onClick={() => setIsRangeOpen(false)} className="flex-1 px-2 py-1.5 rounded-lg text-[7px] font-black text-black bg-emerald-400 uppercase tracking-widest">Apply</button>
+                    <div className="flex gap-2 pt-1">
+                      <button onClick={resetDateRange} className="flex-1 px-2 py-2 rounded-xl text-[8px] font-black text-slate-400 uppercase tracking-widest hover:bg-white/5 border border-transparent">Clear</button>
+                      <button onClick={() => setIsRangeOpen(false)} className="flex-1 px-2 py-2 rounded-xl text-[8px] font-black text-black bg-emerald-400 uppercase tracking-widest">Apply</button>
                     </div>
                   </div>
                 </div>
@@ -343,13 +343,13 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
         <div className="flex items-center">
           <LiveClock />
-          <div className="flex items-center gap-2 pl-4">
-            <div className="relative w-44 group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={12} />
-              <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Asset Search..." className="w-full pl-8 pr-3 py-2 text-[10px] bg-white/5 border border-white/10 rounded-lg focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all text-white placeholder:text-slate-600 font-bold" />
+          <div className="flex items-center gap-3 pl-5">
+            <div className="relative w-48 group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={14} />
+              <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Asset Search..." className="w-full pl-10 pr-4 py-2.5 text-[11px] bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all text-white placeholder:text-slate-600 font-bold" />
             </div>
-            <button onClick={onNewTrade} className="bg-emerald-400 hover:bg-emerald-300 text-black px-4 py-2 rounded-lg font-black text-[10px] transition-all flex items-center gap-1.5 active:scale-95 shadow-lg shadow-emerald-500/10 uppercase tracking-widest">
-              <Plus size={14} /> Log Entry
+            <button onClick={onNewTrade} className="bg-emerald-400 hover:bg-emerald-300 text-black px-6 py-2.5 rounded-xl font-black text-[11px] transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-emerald-500/10 uppercase tracking-widest">
+              <Plus size={16} /> Log Entry
             </button>
           </div>
         </div>
