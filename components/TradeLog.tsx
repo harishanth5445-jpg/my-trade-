@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Filter as FilterIcon, ChevronDown, Plus, Search, Trash2, Wallet, X, Zap, Activity, BellRing, Target, BarChart2, Hash, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Filter as FilterIcon, ChevronDown, Plus, Search, Trash2, Wallet, X, Zap, Activity, BellRing, Target, BarChart2, Hash, ArrowUpRight, ArrowDownRight, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
 import { Trade, Status, Side } from '../types';
 import { Account } from '../App';
 import { SETUPS, INSTRUMENTS } from '../constants';
@@ -119,23 +119,23 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, icon, value, opt
     <div className="relative" ref={containerRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest ${
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-[9px] font-black uppercase tracking-widest ${
           value !== allLabel 
           ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
           : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/10'
         }`}
       >
         <span className={value !== allLabel ? 'text-emerald-400' : 'text-slate-600'}>{icon}</span>
-        <span className="max-w-[80px] truncate">{value === allLabel ? label : value}</span>
-        <ChevronDown size={12} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="max-w-[70px] truncate">{value === allLabel ? label : value}</span>
+        <ChevronDown size={10} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-48 glass-panel border border-white/10 rounded-2xl p-2 z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1">
-          <div className="max-h-60 overflow-y-auto no-scrollbar space-y-1">
+        <div className="absolute top-full left-0 mt-2 w-44 glass-panel border border-white/10 rounded-xl p-1.5 z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1">
+          <div className="max-h-60 overflow-y-auto no-scrollbar space-y-0.5">
             <button 
               onClick={() => { onChange(allLabel); setIsOpen(false); }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${value === allLabel ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}
+              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${value === allLabel ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}
             >
               Reset {label}
             </button>
@@ -144,7 +144,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, icon, value, opt
               <button 
                 key={opt}
                 onClick={() => { onChange(opt); setIsOpen(false); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${value === opt ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${value === opt ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
               >
                 {opt}
               </button>
@@ -155,6 +155,11 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, icon, value, opt
     </div>
   );
 };
+
+const MonthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 
 const TradeLog: React.FC<TradeLogProps> = ({ 
   trades, 
@@ -172,8 +177,23 @@ const TradeLog: React.FC<TradeLogProps> = ({
   const [sideFilter, setSideFilter] = useState<Side | 'ALL'>('ALL');
   const [setupFilter, setSetupFilter] = useState<string | 'ALL'>('ALL');
   const [symbolFilter, setSymbolFilter] = useState<string | 'ALL'>('ALL');
+  const [monthFilter, setMonthFilter] = useState<string | 'ALL'>('ALL');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const dateRangeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dateRangeRef.current && !dateRangeRef.current.contains(event.target as Node)) {
+        setIsDateRangeOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredTrades = useMemo(() => {
     return trades.filter(trade => {
@@ -183,9 +203,29 @@ const TradeLog: React.FC<TradeLogProps> = ({
       const matchesSide = sideFilter === 'ALL' || trade.side === sideFilter;
       const matchesSetup = setupFilter === 'ALL' || trade.setup === setupFilter;
       const matchesSymbol = symbolFilter === 'ALL' || trade.symbol === symbolFilter;
-      return matchesSearch && matchesStatus && matchesSide && matchesSetup && matchesSymbol;
+      
+      const tradeDate = new Date(trade.date);
+      
+      let matchesMonth = true;
+      if (monthFilter !== 'ALL') {
+        matchesMonth = MonthNames[tradeDate.getMonth()] === monthFilter;
+      }
+
+      let matchesDateRange = true;
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        matchesDateRange = matchesDateRange && tradeDate >= start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        matchesDateRange = matchesDateRange && tradeDate <= end;
+      }
+
+      return matchesSearch && matchesStatus && matchesSide && matchesSetup && matchesSymbol && matchesMonth && matchesDateRange;
     });
-  }, [trades, searchTerm, statusFilter, sideFilter, setupFilter, symbolFilter]);
+  }, [trades, searchTerm, statusFilter, sideFilter, setupFilter, symbolFilter, monthFilter, startDate, endDate]);
 
   const stats = useMemo(() => {
     const total = filteredTrades.length;
@@ -197,7 +237,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
     return { netPL, winRate: (wins / total) * 100, profitFactor: grossLosses > 0 ? (grossWins / grossLosses) : grossWins, efficiency: ((filteredTrades.filter(t => t.status !== 'LOSS').length) / total) * 100 };
   }, [filteredTrades]);
 
-  const hasActiveFilters = statusFilter !== 'ALL' || sideFilter !== 'ALL' || setupFilter !== 'ALL' || symbolFilter !== 'ALL' || searchTerm !== '';
+  const hasActiveFilters = statusFilter !== 'ALL' || sideFilter !== 'ALL' || setupFilter !== 'ALL' || symbolFilter !== 'ALL' || monthFilter !== 'ALL' || startDate !== '' || endDate !== '' || searchTerm !== '';
 
   const clearAllFilters = () => {
     setSearchTerm('');
@@ -205,6 +245,9 @@ const TradeLog: React.FC<TradeLogProps> = ({
     setSideFilter('ALL');
     setSetupFilter('ALL');
     setSymbolFilter('ALL');
+    setMonthFilter('ALL');
+    setStartDate('');
+    setEndDate('');
   };
 
   return (
@@ -270,15 +313,83 @@ const TradeLog: React.FC<TradeLogProps> = ({
       </header>
 
       {/* Advanced Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 px-2">
-        <div className="flex items-center gap-2 text-slate-600 mr-2">
-          <FilterIcon size={14} />
-          <span className="text-[9px] font-black uppercase tracking-widest">Filters</span>
+      <div className="flex flex-wrap items-center gap-2 px-2">
+        <div className="flex items-center gap-1.5 text-slate-600 mr-2">
+          <FilterIcon size={12} />
+          <span className="text-[8px] font-black uppercase tracking-widest">Filters</span>
         </div>
         
+        {/* Date Range Selector */}
+        <div className="relative" ref={dateRangeRef}>
+          <button 
+            onClick={() => setIsDateRangeOpen(!isDateRangeOpen)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-[9px] font-black uppercase tracking-widest ${
+              (startDate || endDate) 
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
+              : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            <CalendarIcon size={10} className={(startDate || endDate) ? 'text-emerald-400' : 'text-slate-600'} />
+            <span className="max-w-[100px] truncate">
+              {(startDate || endDate) ? `${startDate || 'Start'} - ${endDate || 'End'}` : 'Date Range'}
+            </span>
+            <ChevronDown size={10} className={`transition-transform duration-300 ${isDateRangeOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {isDateRangeOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1">
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">From Date</label>
+                  <input 
+                    type="date" 
+                    value={startDate} 
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black text-white outline-none focus:border-emerald-500/50 [color-scheme:dark]"
+                  />
+                </div>
+                <div className="flex justify-center py-1 opacity-20">
+                  <ArrowRight size={14} className="rotate-90 text-slate-400" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">To Date</label>
+                  <input 
+                    type="date" 
+                    value={endDate} 
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black text-white outline-none focus:border-emerald-500/50 [color-scheme:dark]"
+                  />
+                </div>
+                <div className="pt-2 flex gap-2">
+                  <button 
+                    onClick={() => { setStartDate(''); setEndDate(''); }}
+                    className="flex-1 py-2 rounded-lg bg-white/5 text-[8px] font-black uppercase text-slate-500 hover:text-white transition-all"
+                  >
+                    Clear
+                  </button>
+                  <button 
+                    onClick={() => setIsDateRangeOpen(false)}
+                    className="flex-1 py-2 rounded-lg bg-emerald-500/20 text-[8px] font-black uppercase text-emerald-400 hover:bg-emerald-500/30 transition-all"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <FilterDropdown 
+          label="Month" 
+          icon={<CalendarIcon size={10}/>} 
+          value={monthFilter} 
+          options={MonthNames} 
+          onChange={setMonthFilter} 
+        />
+
         <FilterDropdown 
           label="Instrument" 
-          icon={<Hash size={12}/>} 
+          icon={<Hash size={10}/>} 
           value={symbolFilter} 
           options={INSTRUMENTS} 
           onChange={setSymbolFilter} 
@@ -286,7 +397,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
         <FilterDropdown 
           label="Strategy Type" 
-          icon={<Zap size={12}/>} 
+          icon={<Zap size={10}/>} 
           value={setupFilter} 
           options={SETUPS} 
           onChange={setSetupFilter} 
@@ -294,7 +405,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
         <FilterDropdown 
           label="Direction" 
-          icon={<Activity size={12}/>} 
+          icon={<Activity size={10}/>} 
           value={sideFilter} 
           options={['LONG', 'SHORT']} 
           onChange={(val) => setSideFilter(val as any)} 
@@ -302,7 +413,7 @@ const TradeLog: React.FC<TradeLogProps> = ({
 
         <FilterDropdown 
           label="Outcome" 
-          icon={<Target size={12}/>} 
+          icon={<Target size={10}/>} 
           value={statusFilter} 
           options={['WIN', 'LOSS', 'BE']} 
           onChange={(val) => setStatusFilter(val as any)} 
@@ -311,9 +422,9 @@ const TradeLog: React.FC<TradeLogProps> = ({
         {hasActiveFilters && (
           <button 
             onClick={clearAllFilters}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all text-[9px] font-black uppercase tracking-widest"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all text-[8px] font-black uppercase tracking-widest"
           >
-            <X size={12} /> Reset
+            <X size={10} /> Reset
           </button>
         )}
       </div>
